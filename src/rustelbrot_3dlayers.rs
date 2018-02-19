@@ -5,28 +5,34 @@
 // Created by Faras, 2017 & 2018
 // Released under GPLv3 license
 
+extern crate cairo;
+
 extern crate palette;
 extern crate kiss3d;
 extern crate nalgebra as na;
 extern crate ncollide;
 
+use Config;
+
 use std::f64;
+use std::usize;
 use std::f64::consts::E;
-// use std::fs::File;
+use std::fs::File;
 use std::time::Instant;
 // use std::env;
 // use std::rc::Rc;
 use std::path::Path;
 
+use self::cairo::{Context, Format, ImageSurface};
 use self::palette::{Rgb, Hsv, RgbHue,Gradient};
 
-use self::na::{Vector3, UnitQuaternion, Point3};
+use self::na::{Vector3, Point3};
 use self::kiss3d::window::Window;
 use self::kiss3d::light::Light;
 // use kiss3d::resource::Texture;
 
 // use ncollide::ncollide_procedural::TriMesh;
-use self::ncollide::ncollide_procedural::quad_with_vertices;
+// use self::ncollide::ncollide_procedural::quad_with_vertices;
 // use ncollide::math::Point as P;
 
 static BOX: &'static [f64] = &[-2.0,0.8,-1.2,1.2];
@@ -38,7 +44,7 @@ static BOXEND: &'static [f64] = &[-2.0,0.8,-1.2,1.2];
 static FRAMES:f64 = 2.0;
 static WIDTH:f64 = 500.0;
 static HEIGHT:f64 = 500.0;
-static PIXELSIZE:f64 = 25.0;
+static PIXELSIZE:f64 = 5.0;
 
 
 // this function tries to determine at which speed does the recursive function blow up
@@ -119,12 +125,19 @@ fn map_range(from_range: (f64, f64), to_range: (f64, f64), s: f64) -> f64 {
     to_range.0 + (s - from_range.0) * (to_range.1 - to_range.0) / (from_range.1 - from_range.0)
 }
 
-pub fn main() {
+struct Layer {
+    index: f64,
+    cr: Context,
+    surface: ImageSurface,
+}
+
+pub fn main(_config:Config) {
    // falta cli parser https://crates.io/crates/clap
     let start = Instant::now();
 
     let mut current_frame:f64 = FRAMES - 1.0;
     let mut current_layer:f64 = 0.0;
+    let mut corresponding_layer:f64;
     let mut layers = vec![];
 
     let mut boxi:[f64;4];
@@ -133,14 +146,16 @@ pub fn main() {
     while current_frame >= 0.0 {
         let frame_start = Instant::now();
 
-        while (current_layer > 10) {
-            let layer = {
+        while current_layer < 10.0 {
+            let is = ImageSurface::create(Format::ARgb32, WIDTH as i32, HEIGHT as i32).expect("Can't create surface");
+
+            let layer = Layer {
                 index: current_layer,
-                surface: ImageSurface::create(Format::ARgb32, WIDTH as i32, HEIGHT as i32).expect("Can't create surface"),
-                cr: Context::new(&surface)
+                cr: Context::new(&is),
+                surface: is,
             };
             layers.push(layer);
-            current_layer+=1;
+            current_layer+=1.0;
         }
 
 
@@ -191,8 +206,8 @@ pub fn main() {
                 let z = unbound_speed(x,y);
 
                 let mut z1 = map_range_log((-1e3 as f64,1e3 as f64),(0.0,1.0),z);
-                let z2 = map_range_log((-1e3 as f64,1e10 as f64),(0.0,1.0),z1);
-                let z3 = map_range_log((-1e3 as f64,1e10 as f64),(0.0,1.0),z2);
+                // let z2 = map_range_log((-1e3 as f64,1e10 as f64),(0.0,1.0),z1);
+                // let z3 = map_range_log((-1e3 as f64,1e10 as f64),(0.0,1.0),z2);
                 // println!("z{} z1{}",z,z1);
 
                 if z1.is_nan() {
@@ -200,24 +215,30 @@ pub fn main() {
                 }
 
                 //Limit max depth
-                if z1 < -1.0 {
-                    z1 = -1.0
+                if z1 < 0.0 {
+                    z1 = 0.0
                 }
+                if z1 > 1.0 {
+                    z1 = 1.0
+                }
+                // println!("{}",z1);
 
                 let hsv = gradient.get(z1 as f32);
                 let rgb: Rgb = Rgb::from(hsv);
 
-                corresponding_layer = round(z1*10);
 
-                layers[corresponding_layer].cr.set_source_rgb(rgb.red as f64,rgb.green as f64,rgb.blue as f64);
+                corresponding_layer = (z1*10.0).round();
 
-                layers[corresponding_layer].cr.rectangle(
+
+                layers[corresponding_layer as usize].cr.set_source_rgb(rgb.red as f64,rgb.green as f64,rgb.blue as f64);
+
+                layers[corresponding_layer as usize].cr.rectangle(
                     map_range((boxi[0],boxi[1]),(0.0,WIDTH),x),
                     map_range((boxi[2],boxi[3]),(0.0,HEIGHT),y),
                     PIXELSIZE,
                     PIXELSIZE
                 );
-                layers[corresponding_layer].cr.fill();
+                layers[corresponding_layer as usize].cr.fill();
 
                 y+=precissiony;
             }
@@ -238,7 +259,7 @@ pub fn main() {
         //     xf+=2.0;
         // }
         //
-        for layer in layers {
+        for layer in &layers {
             let filename = &format!("rustelbrot_f{:03}_layer{:02}.png",current_frame,layer.index);
             // let filename = "m.png";
 
@@ -265,9 +286,9 @@ pub fn main() {
 
     window.set_light(Light::StickToCamera);
 
-    let mut vertices = vec![];
-    let p2 = Point3::new(1.0,1.0,1.0);
-    let v = Vector3::new(1.0,1.0,1.0);
+    // let mut vertices = vec![];
+    // let p2 = Point3::new(1.0,1.0,1.0);
+    // let v = Vector3::new(1.0,1.0,1.0);
 
     // let mut currentvertex = 0;
 
@@ -280,16 +301,34 @@ pub fn main() {
     // let texture:Rc<Texture> = Texture::new();
 
     //Esta es la qeu va
-    let quad = quad_with_vertices(&vertices,WIDTH as usize,HEIGHT as usize);
-    let mut m      = window.add_trimesh(quad,Vector3::new(1.0,1.0,1.0));
-    m.set_texture_from_file(&Path::new("/var/www/matherial/rustelbrot/rustelbrot_f050.png"),&"textura");
+    // let quad = quad_with_vertices(&vertices,WIDTH as usize,HEIGHT as usize);
+    // let mut m      = window.add_trimesh(quad,Vector3::new(1.0,1.0,1.0));
+    // m.set_texture_from_file(&Path::new("/var/www/matherial/rustelbrot/rustelbrot_f050.png"),&"textura");
 
 
     //
     // while window.render() {
-    //     // m.prepend_to_local_rotation(&rot);
+    //     m.prepend_to_local_rotation(&rot);
     // }
+    let p2 = Point3::new(1.0,1.0,1.0);
+    let v = Vector3::new(1.0,1.0,1.0);
 
+    for layer in &layers {
+        let mut m = window.add_quad(1.0, 1.0, 1,1);
+
+        let p = Point3::new(0.0,0.0,(layer.index*0.1) as f32);
+
+        m.reorient(&p,&p2,&v);
+        m.enable_backface_culling(false);
+
+        let filename = &format!("/var/www/matherial/rustelbrot/rustelbrot_f000_layer{:02}.png",layer.index);
+        let texturename = &format!("textura{:02}.png",layer.index);
+
+        // println!("{:?}", filename);
+
+        m.set_texture_from_file(&Path::new(filename),&texturename);
+
+    }
 
 
     let duration = start.elapsed().as_secs() as f64 + start.elapsed().subsec_nanos() as f64  * 1e-9;

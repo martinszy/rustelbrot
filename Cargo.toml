@@ -1,5 +1,5 @@
 [package]
-name = "mandelbrot"
+name = "rustelbrot"
 version = "0.1.0"
 authors = ["Faras <faras@faras.me>"]
 
@@ -10,12 +10,12 @@ cairo-rs = { version = "0.2.0", features = ["png"] }
 kiss3d = "0.11"
 nalgebra = "0.13.0"
 ncollide = "0.13.0"
-clap = "2.29.1"
+clap = { version = "2.29.1", features = ["yaml"] }
 #
 # [dependencies.gtk]
 # version = "0.2.0"
 # features = ["v3_10"]
 
 [[bin]]
-name = "mandelbrot"
-path = "src/m.rs"
+name = "rustelbrot"
+path = "src/rustelbrot.rs"

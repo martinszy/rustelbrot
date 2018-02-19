@@ -10,13 +10,18 @@ extern crate kiss3d;
 extern crate nalgebra as na;
 extern crate ncollide;
 
+use Config;
+
 use std::f64;
 use std::f64::consts::E;
-// use std::fs::File;
 use std::time::Instant;
-// use std::env;
-// use std::rc::Rc;
 // use std::path::Path;
+
+use std::rc::Rc;
+use std::cell::RefCell;
+
+use kiss3d::resource::{Material};
+use kiss3d::builtin::NormalsMaterial;
 
 use self::palette::{Rgb, Hsv, RgbHue,Gradient};
 
@@ -28,18 +33,6 @@ use self::kiss3d::light::Light;
 // use ncollide::ncollide_procedural::TriMesh;
 use self::ncollide::ncollide_procedural::quad_with_vertices;
 // use ncollide::math::Point as P;
-
-// static BOX: &'static [f64] = &[-2.0,0.8,-1.2,1.2];
-// static BOXEND: &'static [f64] = &[-2.0,0.8,-1.2,1.2];
-static BOX: &'static [f64] = &[0.28,0.48,-0.50,-0.30];
-// static BOXEND: &'static [f64] = &[0.4573671713,0.4573671717,-0.4068494815,-0.4068494811];
-//http://colinlmiller.com/fractals/gallery.htm
-
-// static FRAMES:f64 = 100.0;
-static WIDTH:f64 = 500.0;
-static HEIGHT:f64 = 500.0;
-static PIXELSIZE:f64 = 125.0;
-
 
 // this function tries to determine at which speed does the recursive function blow up
 fn unbound_speed(x: f64,y: f64) -> f64 {
@@ -67,8 +60,7 @@ fn unbound_speed(x: f64,y: f64) -> f64 {
         }
     }
 
-    // return s
-    return x+y;
+    return s
 }
 
 // the recursive function is the one needed for the mandelbrot set, it operates on complex numbers (actually, two tuples)
@@ -97,7 +89,7 @@ fn recursive(zr:f64,zi:f64,cr:f64,ci:f64) -> (f64,f64) {
 // fn draw_gradient(cr:&Context,gradient:&Gradient<Hsv>, x: f64,y: f64,gradient_height:f64) {
 //     // println!("draw_gradient x{} y{} gradient_height{}",x,y,gradient_height);
 //
-//     let z1 = map_range((0.0,WIDTH),(0.0,1.0),x);
+//     let z1 = map_range((0.0,config.dimentions[0]),(0.0,1.0),x);
 //     let hsv = gradient.get(z1 as f32);
 //     let rgb: Rgb = Rgb::from(hsv);
 //
@@ -114,13 +106,27 @@ fn recursive(zr:f64,zi:f64,cr:f64,ci:f64) -> (f64,f64) {
 
 
 fn map_range_log(from_range: (f64, f64), to_range: (f64, f64), s: f64) -> f64 {
-    to_range.0 + (s - from_range.0) * (to_range.1 - to_range.0) / (from_range.1 - from_range.0) * (&2.0 - (s - from_range.0) / (from_range.1 - from_range.0))
-}
-fn map_range(from_range: (f64, f64), to_range: (f64, f64), s: f64) -> f64 {
-    to_range.0 + (s - from_range.0) * (to_range.1 - to_range.0) / (from_range.1 - from_range.0)
+    to_range.0 +
+        (s - from_range.0) *
+        (to_range.1 - to_range.0) /
+        (from_range.1 - from_range.0) *
+        (
+            &2.0 -
+            (s - from_range.0) /
+            (from_range.1 - from_range.0)
+        )
 }
 
-pub fn main() {
+fn map_range(from_range: (f64, f64), to_range: (f64, f64), s: f64) -> f64 {
+    to_range.0 +
+        (s - from_range.0) *
+        (to_range.1 - to_range.0) /
+        (from_range.1 - from_range.0)
+}
+
+pub fn main(config:Config) {
+    let balls = config.balls;
+    let mesh = config.mesh;
    // falta cli parser https://crates.io/crates/clap
     let start = Instant::now();
 
@@ -128,10 +134,10 @@ pub fn main() {
 
     window.set_light(Light::StickToCamera);
 
-    let boxi = BOX;
+    let boxi = config.boxstart;
 
-    let precissionx:f64 = (&boxi[1]-&boxi[0])/&(WIDTH) * &PIXELSIZE;
-    let precissiony:f64 = (&boxi[3]-&boxi[2])/&(HEIGHT) * &PIXELSIZE;
+    let precissionx:f64 = (&boxi[1]-&boxi[0])/&(config.dimentions[0]) * &config.pixelsize;
+    let precissiony:f64 = (&boxi[3]-&boxi[2])/&(config.dimentions[1]) * &config.pixelsize;
 
     let hue_shift = 0.0;
 
@@ -170,83 +176,109 @@ pub fn main() {
 
             let z = unbound_speed(x,y);
 
-            let mut z1 = map_range_log((-1e3 as f64,1e3 as f64),(0.0,1.0),z);
-            // println!("z{} z1{}",z,z1);
+            let mut z1 = map_range((-1e2 as f64,-1e1 as f64),(0.1,0.2),z);
 
-            if z1.is_nan() {
-                z1 = 0.01
-            }
 
+            //
+            // if z1.is_nan() {
+            //     z1 = 0.01
+            // }
+            //
             //Limit max depth
-            if z1 < -1.0 {
-                z1 = -1.0
+            if z1 < 0.0 {
+                z1 = map_range_log((-1e308 as f64,-1e2 as f64),(0.0,0.1),z);
+                if z1 < 0.0 {
+                    println!("a{}",z1);
+                    z1 = -0.0;
+                }
+
+            }
+            if z1 > 0.6 {
+                println!("m{}",z1);
+                z1 = 0.6
             }
 
-            let hsv = gradient.get(z1 as f32);
-            let rgb: Rgb = Rgb::from(hsv);
-            // println!("rgb{:?}",rgb);
-
-            // let p = Point3::new(realx as f32,realy as f32,(z1 - 0.0) as f32);
             let p = Point3::new(realx as f32,realy as f32,(z1) as f32);
-            let pmesh = Point3::new(0.0,0.0,1.0);
+            // print!("{}",p);
+            // let p = Point3::new(realx as f32,realy as f32,z1 as f32);
+            let pmesh = p;//Point3::new(0.0,0.0,1.0);
 
-            let spheresize = ((1.0/WIDTH*PIXELSIZE)/10.0)as f32;
+            let spheresize = ((1.0/config.dimentions[0]*config.pixelsize)/1.0)as f32;
             // println!("spheresize{}",spheresize);
 
+            if balls {
+                let mut a = window.add_sphere(spheresize);
+                a.reorient(&p,&p2,&v);
 
-            let mut a = window.add_sphere(spheresize);
+                let hsv = gradient.get(z1 as f32);
+                let rgb: Rgb = Rgb::from(hsv);
+                // println!("rgb{:?}",rgb);
+                a.set_color(rgb.red, rgb.green, rgb.blue);
 
-            a.set_color(rgb.red, rgb.green, rgb.blue);
+            }
 
-            a.reorient(&p,&p2,&v);
-
-            vertices.push(pmesh);
+            if mesh {
+                vertices.push(pmesh);
+            }
 
             y+=precissiony;
         }
         x+=precissionx;
     }
-    println!("vertices:{:?}",vertices );
+    // println!("vertices:{:?}",vertices );
 
-    //Esta es la qeu va
-    let quad = quad_with_vertices(&vertices,WIDTH as usize,HEIGHT as usize);
-    let m = window.add_trimesh(quad,Vector3::new(1.0,1.0,1.0));
-    // m.set_texture_from_file(&Path::new("/var/www/matherial/rustelbrot/rustelbrot_f050.png"),&"textura");
+    if mesh {
+        let mut quad = quad_with_vertices(&vertices,(config.dimentions[0]/(config.pixelsize)) as usize,(config.dimentions[1]/config.pixelsize) as usize);
+        quad.recompute_normals();
+        // println!("quad:{:?}",quad );
+        let mut m = window.add_trimesh(quad,Vector3::new(1.0,1.0,1.0));
 
 
-    // let hue_shift = map_range((0.0,FRAMES-1.0),(-180.0,180.0),current_frame) as f32;
-    // let mut current_frame:f64 = FRAMES - 1.0;
-    // while current_frame >= 0.0 {
-    //     // let frame_start = Instant::now();
-    //
-    //     // let surface = ImageSurface::create(Format::ARgb32, WIDTH as i32, HEIGHT as i32).expect("Can't create surface");
-    //     //  let cr = Context::new(&surface);
-    //
-    //
-    //     boxi = [
-    //      map_range_log((0.0,FRAMES-1.0),(BOX[0],BOXEND[0]),current_frame),
-    //      map_range_log((0.0,FRAMES-1.0),(BOX[1],BOXEND[1]),current_frame),
-    //      map_range_log((0.0,FRAMES-1.0),(BOX[2],BOXEND[2]),current_frame),
-    //      map_range_log((0.0,FRAMES-1.0),(BOX[3],BOXEND[3]),current_frame)
-    //     ];
-    //
-    //
-    //     //
-    //     // while window.render() {
-    //     //     // m.prepend_to_local_rotation(&rot);
-    //     // }
-    //
-    //
-    //     current_frame -= 1.0;
-    // }
+        // let p = Point3::new(0.0,0.0,0.0);
+        // let p2 = Point3::new(1.0,1.0,0.0);
+        // let v = Vector3::new(1.0,1.0,0.0);
+        // m.reorient(&p,&p2,&v);
+
+        // https://github.com/sebcrozet/kiss3d/blob/master/examples/custom_material.rs
+        let material   = Rc::new(RefCell::new(Box::new(NormalsMaterial::new()) as Box<Material + 'static>));
+
+        m.set_material(material);
+        // m.set_texture_from_file(&Path::new("/var/www/matherial/rustelbrot/generated/rustelbrot_f050.png"),&"textura");
+    }
+
 
     let duration = start.elapsed().as_secs() as f64 + start.elapsed().subsec_nanos() as f64  * 1e-9;
 
-    // let frames_per_second = FRAMES/duration;
-
-    println!("Total duration {} seconds.",duration );
-
+    println!("Init time {} seconds until first render.",duration );
     while window.render() {
+
+
+        // let hue_shift = map_range((0.0,config.frames-1.0),(-180.0,180.0),current_frame) as f32;
+        // let mut current_frame:f64 = config.frames - 1.0;
+        // while current_frame >= 0.0 {
+        //     // let frame_start = Instant::now();
+        //
+        //     // let surface = ImageSurface::create(Format::ARgb32, config.dimentions[0] as i32, config.dimentions[1] as i32).expect("Can't create surface");
+        //     //  let cr = Context::new(&surface);
+        //
+        //
+        //     boxi = [
+        //      map_range_log((0.0,config.frames-1.0),(config.boxstart[0],config.boxend[0]),current_frame),
+        //      map_range_log((0.0,config.frames-1.0),(config.boxstart[1],config.boxend[1]),current_frame),
+        //      map_range_log((0.0,config.frames-1.0),(config.boxstart[2],config.boxend[2]),current_frame),
+        //      map_range_log((0.0,config.frames-1.0),(config.boxstart[3],config.boxend[3]),current_frame)
+        //     ];
+        //
+        //
+        //     //
+        //     // while window.render() {
+        //     //     // m.prepend_to_local_rotation(&rot);
+        //     // }
+        //
+        //
+        //     current_frame -= 1.0;
+        // }
+
 
     }
 
