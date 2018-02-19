@@ -8,24 +8,16 @@
 extern crate cairo;
 extern crate palette;
 
+use Config;
+
 use std::f64;
 use std::f64::consts::E;
 use std::fs::File;
 use std::time::Instant;
-// use std::env;
+use std::thread;
 
 use self::cairo::{Context, Format, ImageSurface};
 use self::palette::{Rgb, Hsv, RgbHue,Gradient};
-
-// static BOX: &'static [f64] = &[-2.0,0.8,-1.2,1.2];
-static BOX: &'static [f64] = &[0.28,0.48,-0.50,-0.30];
-static BOXEND: &'static [f64] = &[0.4573671713,0.4573671717,-0.4068494815,-0.4068494811];
-//http://colinlmiller.com/fractals/gallery.htm
-
-static FRAMES:f64 = 100.0;
-static WIDTH:f64 = 1052.36220*2.0;
-static HEIGHT:f64 = 744.09449*2.0;
-static PIXELSIZE:f64 = 1.0;
 
 // this function tries to determine at which speed does the recursive function blow up
 fn unbound_speed(x: f64,y: f64) -> f64 {
@@ -79,7 +71,7 @@ fn recursive(zr:f64,zi:f64,cr:f64,ci:f64) -> (f64,f64) {
 }
 
 // this funtion maps each complex value to an x,y point and performs color operations on the z value that comes from the unbound_speed function
-fn draw(cr:&Context,boxi:&[f64],gradient:&Gradient<Hsv>, x: f64,y: f64,z: f64) {
+fn draw(cr:&Context,boxi:&[f64],config:&Config,gradient:&Gradient<Hsv>, x: f64,y: f64,z: f64) {
     // println!("draw x{} y{} z{}",x,y,z);
 
     let mut z1 = map_range((-1e3 as f64,1e3 as f64),(0.0,2.0),z);
@@ -95,20 +87,20 @@ fn draw(cr:&Context,boxi:&[f64],gradient:&Gradient<Hsv>, x: f64,y: f64,z: f64) {
     cr.set_source_rgb(rgb.red as f64,rgb.green as f64,rgb.blue as f64);
 
     cr.rectangle(
-        map_range((boxi[0],boxi[1]),(0.0,WIDTH),x),
-        map_range((boxi[2],boxi[3]),(0.0,HEIGHT),y),
-        PIXELSIZE,
-        PIXELSIZE
+        map_range((boxi[0],boxi[1]),(0.0,config.dimentions[0]),x),
+        map_range((boxi[2],boxi[3]),(0.0,config.height),y),
+        config.pixelsize,
+        config.pixelsize
     );
     cr.fill();
 
 }
 
 
-fn draw_gradient(cr:&Context,gradient:&Gradient<Hsv>, x: f64,y: f64,gradient_height:f64) {
+fn draw_gradient(cr:&Context,width:f64,gradient:&Gradient<Hsv>, x: f64,y: f64,gradient_height:f64) {
     // println!("draw_gradient x{} y{} gradient_height{}",x,y,gradient_height);
 
-    let z1 = map_range((0.0,WIDTH),(0.0,1.0),x);
+    let z1 = map_range((0.0,width),(0.0,1.0),x);
     let hsv = gradient.get(z1 as f32);
     let rgb: Rgb = Rgb::from(hsv);
 
@@ -131,32 +123,28 @@ fn map_range(from_range: (f64, f64), to_range: (f64, f64), s: f64) -> f64 {
     to_range.0 + (s - from_range.0) * (to_range.1 - to_range.0) / (from_range.1 - from_range.0)
 }
 
-pub fn main() {
+pub fn main(config:Config) {
    // falta cli parser https://crates.io/crates/clap
     let start = Instant::now();
 
-    let mut current_frame:f64 = FRAMES - 1.0;
+    let mut current_frame:f64 = config.frames - 1.0;
 
     let mut boxi:[f64;4];
 
     while current_frame >= 0.0 {
         // let frame_start = Instant::now();
 
-        let surface = ImageSurface::create(Format::ARgb32, WIDTH as i32, HEIGHT as i32).expect("Can't create surface");
-         let cr = Context::new(&surface);
-
-
         boxi = [
-         map_range_log((0.0,FRAMES-1.0),(BOX[0],BOXEND[0]),current_frame),
-         map_range_log((0.0,FRAMES-1.0),(BOX[1],BOXEND[1]),current_frame),
-         map_range_log((0.0,FRAMES-1.0),(BOX[2],BOXEND[2]),current_frame),
-         map_range_log((0.0,FRAMES-1.0),(BOX[3],BOXEND[3]),current_frame)
+         map_range_log((0.0,config.frames-1.0),(config.boxstart[0],config.boxend[0]),current_frame),
+         map_range_log((0.0,config.frames-1.0),(config.boxstart[1],config.boxend[1]),current_frame),
+         map_range_log((0.0,config.frames-1.0),(config.boxstart[2],config.boxend[2]),current_frame),
+         map_range_log((0.0,config.frames-1.0),(config.boxstart[3],config.boxend[3]),current_frame)
         ];
 
-        let precissionx:f64 = (&boxi[1]-&boxi[0])/&(WIDTH) * &PIXELSIZE;
-        let precissiony:f64 = (&boxi[3]-&boxi[2])/&(HEIGHT) * &PIXELSIZE;
+        let precissionx:f64 = (&boxi[1]-&boxi[0])/&(config.dimentions[0]) * &config.pixelsize;
+        let precissiony:f64 = (&boxi[3]-&boxi[2])/&(config.height) * &config.pixelsize;
 
-        let hue_shift = map_range((0.0,FRAMES-1.0),(-180.0,180.0),current_frame) as f32;
+        let hue_shift = map_range((0.0,config.frames-1.0),(-180.0,180.0),current_frame) as f32;
 
         let gradient:Gradient<Hsv> = Gradient::new(vec![
              Hsv::new(RgbHue::from(-90.0+hue_shift), 0.1, 0.1)
@@ -178,29 +166,59 @@ pub fn main() {
         // println!("py{:?}", precissiony);
         // println!("px{:?}", precissionx);
 
-        let mut x:f64 = boxi[0];
 
-        while x <= boxi[1] {
-            // println!("{}",x);
-            let mut y:f64 = boxi[2];
-            while y <= boxi[3] {
-                let z = unbound_speed(x,y);
-                draw(&cr,&boxi,&gradient,x,y,z);
-                y+=precissiony;
-            }
-            x+=precissionx;
+        let thread_count = 4.0;
+        let current_thread = 0.0;
+        let threads = vec![];
+        // let images = vec![];
+
+        while current_thread < thread_count {
+            threads.push(thread::spawn(|| {
+                let surface = ImageSurface::create(Format::ARgb32, config.dimentions[0] as i32, config.height as i32).expect("Can't create surface");
+                // images.push(&surface);
+                let cr = Context::new(&surface);
+
+                let mut x:f64 = boxi[0]+boxi[1]/thread_count*current_thread;
+
+                while x <= boxi[1]/thread_count*(current_thread+1.0) {
+                    // println!("{}",x);
+                    let mut y:f64 = boxi[2];
+                    while y <= boxi[3] {
+                        let z = unbound_speed(x,y);
+                        draw(&cr,&boxi,&config,&gradient,x,y,z);
+                        y+=precissiony;
+                    }
+                    x+=precissionx;
+                }
+            }));
+            current_thread+=1.0;
         }
+
+        for thread in threads {
+            thread.join();
+        }
+
+        let surface = ImageSurface::create(Format::ARgb32, config.dimentions[0] as i32, config.height as i32).expect("Can't create surface");
+        let cr = Context::new(&surface);
+
+        for (image_index,image) in images.iter().enumerate() {
+
+            cr.set_source_surface(image,config.dimentions[0]/thread_count*image_index as f64,0.0);
+        }
+
+
+
 
 
         let gradient_height:f64 = 40.0;
 
-        let yf:f64 = HEIGHT  - gradient_height;
+        let yf:f64 = config.height  - gradient_height;
 
         let mut xf:f64 = 0.0;
         // println!("gradient {},{:?}",yf,gradient);
 
-        while xf <= WIDTH {
-            draw_gradient(&cr,&gradient,xf,yf,gradient_height);
+        while xf <= config.dimentions[0] {
+            draw_gradient(&cr,config.dimentions[0],&gradient,xf,yf,gradient_height);
             xf+=2.0;
         }
 
@@ -215,7 +233,7 @@ pub fn main() {
 
 
         // let duration = frame_start.elapsed().as_secs() as f64 + frame_start.elapsed().subsec_nanos() as f64  * 1e-9;
-        // let total_pixels = WIDTH * HEIGHT / PIXELSIZE;
+        // let total_pixels = config.dimentions[0] * config.height / config.pixelsize;
 
         // let pixels_per_second = total_pixels/duration;
 
@@ -227,9 +245,9 @@ pub fn main() {
 
     let duration = start.elapsed().as_secs() as f64 + start.elapsed().subsec_nanos() as f64  * 1e-9;
 
-    let frames_per_second = FRAMES/duration;
+    let frames_per_second = config.frames/duration;
 
-    println!("Total duration {} seconds. Frames per second: {} Total frames:{}",duration,frames_per_second,FRAMES );
+    println!("Total duration {} seconds. Frames per second: {} Total frames:{}",duration,frames_per_second,config.frames );
 
 
 }
