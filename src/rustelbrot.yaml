@@ -24,9 +24,7 @@ args:
         long: dimentions
         takes_value: true
         global: true
-        multiple: true
-        min_values: 2
-        max_values: 2
+        multiple: false
     - pixelsize:
         help: Tamaño del pixel, aumentar este valor disminuye el detalle y aumenta la performance
         long: pixelsize
@@ -34,22 +32,20 @@ args:
         takes_value: true
         global: true
     - boxstart:
-        long: startbox
+        long: boxstart
         short: s
         help: Define las coordenadas de la caja del cuadro inicial [x1,y1,x2,y2]
         # possible_values can also be defined in this list format
         global: true
         takes_value: true
-        multiple: true
-        min_values: 4
-        max_values: 4
+        multiple: false
     - boxend:
         long: boxend
         short: e
+        global: true
+        takes_value: true
         help: Define las coordenadas de la caja del cuadro final [x1,y1,x2,y2]
-        multiple: true
-        min_values: 4
-        max_values: 4
+        multiple: false
     - output-template:
         long: output-template
         short: o

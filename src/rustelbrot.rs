@@ -110,42 +110,53 @@ fn main() {
             None => DEFAULTCONFIG.frames,
         }
     }
-    // if m.is_present("dimentions") {
-    //     println!("config dimentions");
-    //     config.dimentions = match m.value_of("dimentions") {
-    //         Some(v) => v.parse::<String>().unwrap().split("x").filter_map(|x| x.parse::<f64>().ok()).collect::<Vec<f64>>().as_slice().deref(),
-    //         None => DEFAULTCONFIG.dimentions,
-    //     }
-    // }
-    // if m.is_present("frames") {
-    //     println!("config frames");
-    //     config.frames = match m.value_of("frames") {
-    //         Some(v) => v.parse::<f64>().unwrap(),
-    //         None => DEFAULTCONFIG.frames,
-    //     }
-    // }
-    // if m.is_present("boxstart") {
-    //     println!("config boxstart");
-    //     config.boxstart = match m.value_of("boxstart") {
-    //         Some(v) => v.parse::<f64>().unwrap(),
-    //         None => DEFAULTCONFIG.boxstart,
-    //     }
-    // }
-    // if m.is_present("boxend") {
-    //     println!("config boxend");
-    //     config.boxend = match m.value_of("boxend") {
-    //         Some(v) => v.parse::<f64>().unwrap(),
-    //         None => DEFAULTCONFIG.boxend,
-    //     }
-    // }
+    if m.is_present("dimentions") {
+        println!("config dimentions");
+        match m.value_of("dimentions") {
+            Some(v) => {
+                let vec =                v.parse::<String>().unwrap().split("x").filter_map(|x| x.parse::<f64>().ok()).collect::<Vec<f64>>();
+                config.dimentions =  [vec[0], vec[1]];
+            },
+            None => config.dimentions = DEFAULTCONFIG.dimentions,
+        }
+    }
+    if m.is_present("frames") {
+        println!("config frames");
+        match m.value_of("frames") {
+            Some(v) => {
+                config.frames =  v.parse::<f64>().unwrap();
+            },
+            None => config.frames = DEFAULTCONFIG.frames,
+        }
+    }
+    if m.is_present("boxstart") {
+        println!("config boxstart");
+        match m.value_of("boxstart") {
+            Some(v) => {
+                let vec =                v.parse::<String>().unwrap().split(",").filter_map(|x| x.parse::<f64>().ok()).collect::<Vec<f64>>();
+                config.boxstart =  [vec[0], vec[1], vec[2], vec[3]];
+            },
+            None => config.boxstart = DEFAULTCONFIG.boxstart,
+        }
+    }
+    if m.is_present("boxend") {
+        println!("config boxend");
+        match m.value_of("boxend") {
+            Some(v) => {
+                let vec =                v.parse::<String>().unwrap().split(",").filter_map(|x| x.parse::<f64>().ok()).collect::<Vec<f64>>();
+                config.boxstart =  [vec[0], vec[1], vec[2], vec[3]];
+            },
+            None => config.boxend = DEFAULTCONFIG.boxend,
+        }
+    }
     // if m.is_present("output-template") {
     //     println!("config output-template");
     //     config.output_template = match m.value_of("output-template") {
-    //         Some(v) => v.parse::<f64>().unwrap(),
+    //         Some(v) => v.parse::<String>().unwrap(),
     //         None => DEFAULTCONFIG.output_template,
     //     }
     // }
-    //
+
 
 
     let generator = match config.generator {
