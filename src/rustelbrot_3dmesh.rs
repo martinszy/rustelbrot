@@ -85,26 +85,6 @@ fn recursive(zr:f64,zi:f64,cr:f64,ci:f64) -> (f64,f64) {
     return (z2cr,z2ci)
 }
 
-//
-// fn draw_gradient(cr:&Context,gradient:&Gradient<Hsv>, x: f64,y: f64,gradient_height:f64) {
-//     // println!("draw_gradient x{} y{} gradient_height{}",x,y,gradient_height);
-//
-//     let z1 = map_range((0.0,config.dimentions[0]),(0.0,1.0),x);
-//     let hsv = gradient.get(z1 as f32);
-//     let rgb: Rgb = Rgb::from(hsv);
-//
-//     cr.set_source_rgb(rgb.red as f64,rgb.green as f64,rgb.blue as f64);
-//
-//     cr.rectangle(
-//         x,
-//         y,
-//         2.0,
-//         gradient_height
-//     );
-//     cr.fill();
-// }
-
-
 fn map_range_log(from_range: (f64, f64), to_range: (f64, f64), s: f64) -> f64 {
     to_range.0 +
         (s - from_range.0) *
@@ -193,15 +173,15 @@ pub fn main(config:Config) {
                 }
 
             }
-            if z1 > 0.6 {
-                println!("m{}",z1);
-                z1 = 0.6
-            }
+            // if z1 > 0.6 {
+            //     println!("m{}",z1);
+            //     z1 = 0.6
+            // }
 
             let p = Point3::new(realx as f32,realy as f32,(z1) as f32);
             // print!("{}",p);
             // let p = Point3::new(realx as f32,realy as f32,z1 as f32);
-            let pmesh = p;//Point3::new(0.0,0.0,1.0);
+            // let pmesh = p;//Point3::new(0.0,0.0,1.0);
 
             let spheresize = ((1.0/config.dimentions[0]*config.pixelsize)/1.0)as f32;
             // println!("spheresize{}",spheresize);
@@ -218,7 +198,7 @@ pub fn main(config:Config) {
             }
 
             if mesh {
-                vertices.push(pmesh);
+                vertices.push(p);
             }
 
             y+=precissiony;
@@ -234,10 +214,10 @@ pub fn main(config:Config) {
         let mut m = window.add_trimesh(quad,Vector3::new(1.0,1.0,1.0));
 
 
-        // let p = Point3::new(0.0,0.0,0.0);
-        // let p2 = Point3::new(1.0,1.0,0.0);
-        // let v = Vector3::new(1.0,1.0,0.0);
-        // m.reorient(&p,&p2,&v);
+        let p = Point3::new(0.0,0.0,0.0);
+        let p2 = Point3::new(0.0,0.5,1.0);
+        let v = Vector3::new(0.9,0.9,0.9);
+        m.reorient(&p,&p2,&v);
 
         // https://github.com/sebcrozet/kiss3d/blob/master/examples/custom_material.rs
         let material   = Rc::new(RefCell::new(Box::new(NormalsMaterial::new()) as Box<Material + 'static>));
@@ -272,7 +252,7 @@ pub fn main(config:Config) {
         //
         //     //
         //     // while window.render() {
-        //     //     // m.prepend_to_local_rotation(&rot);
+                // m.prepend_to_local_rotation(&rot);
         //     // }
         //
         //
