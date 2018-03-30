@@ -6,6 +6,7 @@
 
 mod rustelbrot_2d;
 mod rustelbrot_3dlayers;
+mod rustelbrot_3dsphere;
 mod rustelbrot_3dmesh;
 mod rustelbrot_2dvid;
 
@@ -26,6 +27,7 @@ enum GeneratorType {
     G2d,
     G2dVid,
     G3dMesh,
+    G3dSphere,
     G3dLayers
 }
 
@@ -75,6 +77,12 @@ fn main() {
             else if sub_m.is_present("layers") {
                 println!("layers");
                 config.generator = GeneratorType::G3dLayers;
+
+                // mandelbrot3d::main();
+            }
+            else if sub_m.is_present("sphere") {
+                println!("sphere");
+                config.generator = GeneratorType::G3dSphere;
 
                 // mandelbrot3d::main();
             }
@@ -164,6 +172,7 @@ fn main() {
         GeneratorType::G2dVid   => rustelbrot_2dvid::main,
         GeneratorType::G3dLayers=> rustelbrot_3dlayers::main,
         GeneratorType::G3dMesh  => rustelbrot_3dmesh::main,
+        GeneratorType::G3dSphere  => rustelbrot_3dsphere::main,
     };
 
     generator(config);

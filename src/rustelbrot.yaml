@@ -67,14 +67,15 @@ subcommands:
             - mesh:
                 short: m
                 help: Crea malla tridimensional de fractales
-                takes_value: false
             - balls:
                 short: b
-                help: Crea esferas en el espacio tridimensional
-                takes_value: false
+                help: Crea muchas bolas en el espacio tridimensional
             - layers:
                 short: l
                 help: Crea capas de imágenes
+            - sphere:
+                short: h
+                help: Crea una malla tridimensional con forma de esfera
     - 2d:
             about: genera en 2d frames para video
     - vid:
