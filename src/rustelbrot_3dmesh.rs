@@ -25,13 +25,14 @@ use kiss3d::builtin::NormalsMaterial;
 
 use self::palette::{Rgb, Hsv, RgbHue,Gradient};
 
-use self::na::{Vector3, Point3};
+use self::na::{Vector3, Point3, UnitQuaternion};
 use self::kiss3d::window::Window;
 use self::kiss3d::light::Light;
 // use kiss3d::resource::Texture;
 
 // use ncollide::ncollide_procedural::TriMesh;
 use self::ncollide::ncollide_procedural::quad_with_vertices;
+// use self::ncollide::ncollide_procedural::quad;
 // use ncollide::math::Point as P;
 
 // this function tries to determine at which speed does the recursive function blow up
@@ -207,31 +208,39 @@ pub fn main(config:Config) {
     }
     // println!("vertices:{:?}",vertices );
 
+    let mut m;
+
     if mesh {
-        let mut quad = quad_with_vertices(&vertices,(config.dimentions[0]/(config.pixelsize)) as usize,(config.dimentions[1]/config.pixelsize) as usize);
-        quad.recompute_normals();
+        let quad = quad_with_vertices(&vec![],(config.dimentions[0]/(config.pixelsize)) as usize,(config.dimentions[1]/config.pixelsize) as usize);
+        // let mut quad = quad(1.0,1.0,(config.dimentions[0]/(config.pixelsize)) as usize,(config.dimentions[1]/config.pixelsize) as usize);
         // println!("quad:{:?}",quad );
-        let mut m = window.add_trimesh(quad,Vector3::new(1.0,1.0,1.0));
-
-
-        let p = Point3::new(0.0,0.0,0.0);
-        let p2 = Point3::new(0.0,0.5,1.0);
-        let v = Vector3::new(0.9,0.9,0.9);
-        m.reorient(&p,&p2,&v);
+        // m = window.add_trimesh(quad.clone(),Vector3::new(1.0,1.0,1.0));
 
         // https://github.com/sebcrozet/kiss3d/blob/master/examples/custom_material.rs
         let material   = Rc::new(RefCell::new(Box::new(NormalsMaterial::new()) as Box<Material + 'static>));
 
-        m.set_material(material);
+        let rot = UnitQuaternion::from_axis_angle(&Vector3::y_axis(), 0.014);
+
         // m.set_texture_from_file(&Path::new("/var/www/matherial/rustelbrot/generated/rustelbrot_f050.png"),&"textura");
-    }
+        let mut current_frame = config.frames;
 
+        while window.render() {
+            if current_frame >= config.frames {
 
-    let duration = start.elapsed().as_secs() as f64 + start.elapsed().subsec_nanos() as f64  * 1e-9;
+                let mut quad = quad.clone();
+                quad.coords = vertices.clone();
+                m = window.add_trimesh(quad,Vector3::new(1.0,1.0,1.0));
+                m.set_material(material.clone());
+                // m.recompute_normals();
+                //
+                let p = Point3::new(0.0,0.0,0.0);
+                let p2 = Point3::new(0.0,(current_frame/10.0) as f32,1.0);
+                let v = Vector3::new(0.9,0.9,0.9);
+                m.reorient(&p,&p2,&v);
+                m.prepend_to_local_rotation(&rot);
 
-    println!("Init time {} seconds until first render.",duration );
-    while window.render() {
-
+                current_frame -= 1.0;
+            }
 
         // let hue_shift = map_range((0.0,config.frames-1.0),(-180.0,180.0),current_frame) as f32;
         // let mut current_frame:f64 = config.frames - 1.0;
@@ -252,12 +261,17 @@ pub fn main(config:Config) {
         //
         //     //
         //     // while window.render() {
-                // m.prepend_to_local_rotation(&rot);
+                //
         //     // }
         //
         //
-        //     current_frame -= 1.0;
         // }
+    }
+
+
+    let duration = start.elapsed().as_secs() as f64 + start.elapsed().subsec_nanos() as f64  * 1e-9;
+
+    println!("Init time {} seconds until first render.",duration );
 
 
     }
