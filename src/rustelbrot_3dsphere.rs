@@ -5,7 +5,7 @@
 // Created by Faras, 2017 & 2018
 // Released under GPLv3 license
 
-extern crate palette;
+// extern crate palette;
 extern crate kiss3d;
 extern crate nalgebra as na;
 extern crate ncollide;
@@ -23,9 +23,9 @@ use std::cell::RefCell;
 use kiss3d::resource::{Material};
 use kiss3d::builtin::NormalsMaterial;
 
-use self::palette::{Rgb, Hsv, RgbHue,Gradient};
+// use self::palette::{Hsv, RgbHue,Gradient};
 
-use self::na::{Vector3, Point3, UnitQuaternion};
+use self::na::{Vector3, Point3};
 use self::kiss3d::window::Window;
 use self::kiss3d::light::Light;
 // use kiss3d::resource::Texture;
@@ -117,21 +117,21 @@ pub fn main(config:Config) {
     let precissionx:f64 = (&boxi[1]-&boxi[0])/&(config.dimentions[0]) * &config.pixelsize;
     let precissiony:f64 = (&boxi[3]-&boxi[2])/&(config.dimentions[1]) * &config.pixelsize;
 
-    let hue_shift = 0.0;
+    // let hue_shift = 0.0;
 
-    let gradient:Gradient<Hsv> = Gradient::new(vec![
-         Hsv::new(RgbHue::from(-90.0+hue_shift), 1.0, 1.0)
-        ,Hsv::new(RgbHue::from(-80.0+hue_shift), 0.4, 0.4)
-        ,Hsv::new(RgbHue::from(-70.0+hue_shift), 0.5, 0.5)
-        ,Hsv::new(RgbHue::from(-61.0+hue_shift), 0.6, 0.6)
-        ,Hsv::new(RgbHue::from(-50.0+hue_shift), 0.7, 0.7)
-        ,Hsv::new(RgbHue::from(-20.0+hue_shift), 0.8, 0.8)
-        ,Hsv::new(RgbHue::from( -0.0+hue_shift), 1.0, 0.7)
-        ,Hsv::new(RgbHue::from( 10.0+hue_shift), 0.5, 0.7)
-        ,Hsv::new(RgbHue::from( 50.0+hue_shift), 0.2, 0.9)
-        ,Hsv::new(RgbHue::from( 61.0+hue_shift), 0.1, 1.0)
-        ]
-    );
+    // let gradient:Gradient<Hsv> = Gradient::new(vec![
+        //  Hsv::new(RgbHue::from(-90.0+hue_shift), 1.0, 1.0)
+        // ,Hsv::new(RgbHue::from(-80.0+hue_shift), 0.4, 0.4)
+        // ,Hsv::new(RgbHue::from(-70.0+hue_shift), 0.5, 0.5)
+        // ,Hsv::new(RgbHue::from(-61.0+hue_shift), 0.6, 0.6)
+        // ,Hsv::new(RgbHue::from(-50.0+hue_shift), 0.7, 0.7)
+        // ,Hsv::new(RgbHue::from(-20.0+hue_shift), 0.8, 0.8)
+        // ,Hsv::new(RgbHue::from( -0.0+hue_shift), 1.0, 0.7)
+        // ,Hsv::new(RgbHue::from( 10.0+hue_shift), 0.5, 0.7)
+        // ,Hsv::new(RgbHue::from( 50.0+hue_shift), 0.2, 0.9)
+        // ,Hsv::new(RgbHue::from( 61.0+hue_shift), 0.1, 1.0)
+        // ]
+    // );
 
 //    println!("hs{:?}", hue_shift);
     // //
@@ -141,8 +141,8 @@ pub fn main(config:Config) {
     let mut x:f64 = boxi[0];
 
     let mut vertices = vec![];
-    let p2 = Point3::new(1.0,1.0,1.0);
-    let v = Vector3::new(1.0,1.0,1.0);
+    // let p2 = Point3::new(1.0,1.0,1.0);
+    // let v = Vector3::new(1.0,1.0,1.0);
 
     while x <= boxi[1] {
         // println!("{}",x);
@@ -198,7 +198,7 @@ pub fn main(config:Config) {
     // https://github.com/sebcrozet/kiss3d/blob/master/examples/custom_material.rs
     let material   = Rc::new(RefCell::new(Box::new(NormalsMaterial::new()) as Box<Material + 'static>));
 
-    let rot = UnitQuaternion::from_axis_angle(&Vector3::y_axis(), 0.014);
+    // let rot = UnitQuaternion::from_axis_angle(&Vector3::y_axis(), 0.014);
 
     // m.set_texture_from_file(&Path::new("/var/www/matherial/rustelbrot/generated/rustelbrot_f050.png"),&"textura");
     // let mut current_frame = config.frames;

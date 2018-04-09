@@ -18,7 +18,7 @@ extern crate ncollide;
 #[macro_use]
 extern crate clap;
 
-use clap::{App};
+use clap::{App, AppSettings};
 
 // use std::ops::Deref;
 
@@ -58,11 +58,13 @@ static DEFAULTCONFIG:Config = Config {
 
 fn main() {
     let yml = load_yaml!("rustelbrot.yaml");
-    let m = App::from_yaml(yml).get_matches();
+    let m = App::from_yaml(yml)
+        .setting(AppSettings::AllowLeadingHyphen)
+        .get_matches();
     let mut config = DEFAULTCONFIG.clone();
 
     match m.subcommand() {
-        ("3d",  Some(sub_m)) => {
+        ("g3d",  Some(sub_m)) => {
             println!("3d");
             config.generator = GeneratorType::G3dMesh;
 
@@ -94,7 +96,7 @@ fn main() {
             println!("video");
             config.generator = GeneratorType::G2dVid;
         }, // push was used
-        ("2d", Some(_)) => {
+        ("g2d", Some(_)) => {
             println!("2d");
             config.generator = GeneratorType::G2d;
         }, // commit was used
@@ -141,7 +143,7 @@ fn main() {
         println!("config boxstart");
         match m.value_of("boxstart") {
             Some(v) => {
-                let vec =                v.parse::<String>().unwrap().split(",").filter_map(|x| x.parse::<f64>().ok()).collect::<Vec<f64>>();
+                let vec =                v.parse::<String>().unwrap().split("x").filter_map(|x| x.parse::<f64>().ok()).collect::<Vec<f64>>();
                 config.boxstart =  [vec[0], vec[1], vec[2], vec[3]];
             },
             None => config.boxstart = DEFAULTCONFIG.boxstart,
@@ -151,8 +153,8 @@ fn main() {
         println!("config boxend");
         match m.value_of("boxend") {
             Some(v) => {
-                let vec =                v.parse::<String>().unwrap().split(",").filter_map(|x| x.parse::<f64>().ok()).collect::<Vec<f64>>();
-                config.boxstart =  [vec[0], vec[1], vec[2], vec[3]];
+                let vec =                v.parse::<String>().unwrap().split("x").filter_map(|x| x.parse::<f64>().ok()).collect::<Vec<f64>>();
+                config.boxend =  [vec[0], vec[1], vec[2], vec[3]];
             },
             None => config.boxend = DEFAULTCONFIG.boxend,
         }

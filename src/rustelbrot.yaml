@@ -60,7 +60,7 @@ args:
 subcommands:
     # The name of this subcommand will be 'subcmd' which can be accessed in your
     # Rust code later
-    - 3d:
+    - g3d:
         about: genera en 3d (actualmente no anda bien)
         # Subcommand args are exactly like App args
         args:
@@ -76,7 +76,7 @@ subcommands:
             - sphere:
                 short: h
                 help: Crea una malla tridimensional con forma de esfera
-    - 2d:
+    - g2d:
             about: genera en 2d frames para video
     - vid:
             about: genera en 2d
