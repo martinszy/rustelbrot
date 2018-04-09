@@ -73,13 +73,14 @@ fn recursive(zr:f64,zi:f64,cr:f64,ci:f64) -> (f64,f64) {
 // this funtion maps each complex value to an x,y point and performs color operations on the z value that comes from the unbound_speed function
 fn draw(cr:&Context,boxi:&[f64],config:&Config,gradient:&Gradient<Hsv>, x: f64,y: f64,z: f64) {
     // println!("draw x{} y{} z{}",x,y,z);
-
+    //
     let mut z1 = map_range((-1e3 as f64,1e3 as f64),(0.0,2.0),z);
 
     if z1.is_nan() {
         z1 = 0.01
 
     }
+
 
     let hsv = gradient.get(z1 as f32);
     let rgb: Rgb = Rgb::from(hsv);
@@ -184,6 +185,7 @@ pub fn main(config:Config) {
             while y <= boxi[3] {
                 // println!("{}",y);
                 let z = unbound_speed(x,y,current_frame);
+
                 draw(&cr,&boxi,&config,&gradient,x,y,z);
                 y+=precissiony;
             }
@@ -203,7 +205,7 @@ pub fn main(config:Config) {
             xf+=2.0;
         }
 
-        let filename = &format!("generated/rustelbrot_f{:03}_box{}_{}_{}_{}.png",current_frame,boxi[0],boxi[1],boxi[2],boxi[3]);
+        let filename = &format!("generated/rustelbrot_f{:03}_box{}x{}x{}x{}.png",current_frame,boxi[0],boxi[1],boxi[2],boxi[3]);
         // let filename = "m.png";
 
         let mut file = File::create(filename).expect("Couldn't create file");
