@@ -206,15 +206,15 @@ pub fn main(config:Config) {
         }
         x+=precissionx;
     }
-    // println!("vertices:{:?}",vertices );
+    //println!("vertices:{:?}",vertices );
 
     let mut m;
 
     if mesh {
         let quad = quad_with_vertices(&vec![],(config.dimentions[0]/(config.pixelsize)) as usize,(config.dimentions[1]/config.pixelsize) as usize);
-        // let mut quad = quad(1.0,1.0,(config.dimentions[0]/(config.pixelsize)) as usize,(config.dimentions[1]/config.pixelsize) as usize);
-        // println!("quad:{:?}",quad );
-        // m = window.add_trimesh(quad.clone(),Vector3::new(1.0,1.0,1.0));
+        //let mut quad = quad(1.0,1.0,(config.dimentions[0]/(config.pixelsize)) as usize,(config.dimentions[1]/config.pixelsize) as usize);
+        //println!("quad:{:?}",quad );
+        m = window.add_trimesh(quad.clone(),Vector3::new(1.0,1.0,1.0));
 
         // https://github.com/sebcrozet/kiss3d/blob/master/examples/custom_material.rs
         let material   = Rc::new(RefCell::new(Box::new(NormalsMaterial::new()) as Box<Material + 'static>));
@@ -222,24 +222,24 @@ pub fn main(config:Config) {
         let rot = UnitQuaternion::from_axis_angle(&Vector3::y_axis(), 0.014);
 
         // m.set_texture_from_file(&Path::new("/var/www/matherial/rustelbrot/generated/rustelbrot_f050.png"),&"textura");
-        let mut current_frame = config.frames;
+      //  let mut current_frame = config.frames;
 
-        while window.render() {
-            if current_frame >= config.frames {
+        //if current_frame >= config.frames {
 
-                let mut quad = quad.clone();
-                quad.coords = vertices.clone();
-                m = window.add_trimesh(quad,Vector3::new(1.0,1.0,1.0));
+                //let mut quad = quad.clone();
+                //quad.coords = vertices.clone();
+                //m = window.add_trimesh(quad,Vector3::new(1.0,1.0,1.0));
                 m.set_material(material.clone());
-                // m.recompute_normals();
+                m.recompute_normals();
                 //
-                let p = Point3::new(0.0,0.0,0.0);
-                let p2 = Point3::new(0.0,(current_frame/10.0) as f32,1.0);
+                let p = Point3::new(1.0,1.0,1.0);
+                let p2 = Point3::new(1.0,1.0,1.0);
                 let v = Vector3::new(0.9,0.9,0.9);
                 m.reorient(&p,&p2,&v);
                 m.prepend_to_local_rotation(&rot);
 
-                current_frame -= 1.0;
+                // current_frame -= 1.0;
+        while window.render() {
             }
 
         // let hue_shift = map_range((0.0,config.frames-1.0),(-180.0,180.0),current_frame) as f32;
@@ -266,7 +266,7 @@ pub fn main(config:Config) {
         //
         //
         // }
-    }
+    //}
 
 
     let duration = start.elapsed().as_secs() as f64 + start.elapsed().subsec_nanos() as f64  * 1e-9;
