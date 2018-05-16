@@ -211,7 +211,7 @@ pub fn main(config:Config) {
     let mut m;
 
     if mesh {
-        let quad = quad_with_vertices(&vec![],(config.dimentions[0]/(config.pixelsize)) as usize,(config.dimentions[1]/config.pixelsize) as usize);
+        let quad = quad_with_vertices(&vertices,(config.dimentions[0]/(config.pixelsize)) as usize,(config.dimentions[1]/config.pixelsize) as usize);
         //let mut quad = quad(1.0,1.0,(config.dimentions[0]/(config.pixelsize)) as usize,(config.dimentions[1]/config.pixelsize) as usize);
         //println!("quad:{:?}",quad );
         m = window.add_trimesh(quad.clone(),Vector3::new(1.0,1.0,1.0));
@@ -232,11 +232,11 @@ pub fn main(config:Config) {
                 m.set_material(material.clone());
                 m.recompute_normals();
                 //
-                let p = Point3::new(1.0,1.0,1.0);
-                let p2 = Point3::new(1.0,1.0,1.0);
+                let p = Point3::new(0.0,0.0,0.0);
+                let p2 = Point3::new(0.0,0.0,1.0);
                 let v = Vector3::new(0.9,0.9,0.9);
                 m.reorient(&p,&p2,&v);
-                m.prepend_to_local_rotation(&rot);
+                //m.prepend_to_local_rotation(&rot);
 
                 // current_frame -= 1.0;
         while window.render() {
