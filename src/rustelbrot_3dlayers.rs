@@ -164,19 +164,20 @@ pub fn main(config:Config) {
             }
             // println!("z{}l{}",z1,corresponding_layer);
 
-            let hue_shift = 0.0;
+            let hue_shift = 25.0*corresponding_layer as f32;
+            let light_shift = -0.03*corresponding_layer as f32;
 
             let gradient:Gradient<Hsv> = Gradient::new(vec![
-                 Hsv::new(RgbHue::from(-90.0+hue_shift), 1.0, 1.0)
-                ,Hsv::new(RgbHue::from(-80.0+hue_shift), 0.4, 0.4)
-                ,Hsv::new(RgbHue::from(-70.0+hue_shift), 0.5, 0.5)
-                ,Hsv::new(RgbHue::from(-61.0+hue_shift), 0.6, 0.6)
-                ,Hsv::new(RgbHue::from(-50.0+hue_shift), 0.7, 0.7)
-                ,Hsv::new(RgbHue::from(-20.0+hue_shift), 0.8, 0.8)
-                ,Hsv::new(RgbHue::from( -0.0+hue_shift), 1.0, 0.7)
-                ,Hsv::new(RgbHue::from( 10.0+hue_shift), 0.5, 0.7)
-                ,Hsv::new(RgbHue::from( 50.0+hue_shift), 0.2, 0.9)
-                ,Hsv::new(RgbHue::from( 61.0+hue_shift), 0.1, 1.0)
+                 Hsv::new(RgbHue::from(-10.0+hue_shift), 1.0, 1.0-light_shift)
+                ,Hsv::new(RgbHue::from(-80.0+hue_shift), 0.4, 0.4-light_shift)
+                ,Hsv::new(RgbHue::from(-7.0+hue_shift), 0.5, 0.5-light_shift)
+                ,Hsv::new(RgbHue::from(-6.0+hue_shift), 0.6, 0.6-light_shift)
+                ,Hsv::new(RgbHue::from(-5.0+hue_shift), 0.7, 0.7-light_shift)
+                ,Hsv::new(RgbHue::from(-2.0+hue_shift), 0.8, 0.8-light_shift)
+                ,Hsv::new(RgbHue::from( -0.0+hue_shift), 1.0, 0.7-light_shift)
+                ,Hsv::new(RgbHue::from( 1.0+hue_shift), 0.5, 0.7-light_shift)
+                ,Hsv::new(RgbHue::from( 5.0+hue_shift), 0.2, 0.9-light_shift)
+                ,Hsv::new(RgbHue::from( 15.0+hue_shift), 0.1, 1.0-light_shift)
                 ]
             );
 
@@ -232,7 +233,7 @@ pub fn main(config:Config) {
 
 
     println!("Frame duration {} seconds. Pixels per second: {} Total pixels:{}",duration,pixels_per_second,total_pixels );
-
+/*
     let mut window = Window::new("Rustelbrot3d");
 
     window.set_light(Light::StickToCamera);
@@ -280,14 +281,14 @@ pub fn main(config:Config) {
         m.set_texture_from_file(&Path::new(filename),&texturename);
 
     }
-
+*/
 
     let duration = start.elapsed().as_secs() as f64 + start.elapsed().subsec_nanos() as f64  * 1e-9;
 
     println!("Total duration {} seconds.",duration );
-
+/*
     while window.render() {
 
     }
-
+*/
 }
