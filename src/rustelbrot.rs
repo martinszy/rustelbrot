@@ -4,6 +4,9 @@
 // Created by Faras, 2017 & 2018
 // Released under GPLv3 license
 
+// This is the main file dealing with command line input
+// For fractal calculations see the generator files.
+
 mod rustelbrot_2d;
 mod rustelbrot_3dlayers;
 mod rustelbrot_3dsphere;
