@@ -36,10 +36,11 @@ use self::ncollide::ncollide_procedural::quad_with_vertices;
 // use ncollide::math::Point as P;
 
 // this function tries to determine at which speed does the recursive function blow up
-fn unbound_speed(x: f64,y: f64) -> f64 {
+fn unbound_speed(x: f64,y: f64) -> (f64,f64) {
     let mut z0 = 0.0;
     let mut z1 = 0.0;
-    let mut s = 0.0;
+    let mut s2 = 0.0;
+    let mut s3 = 0.0;
     let iterations_per_pixel = 80;
     let mut i = 0;
 
@@ -48,12 +49,16 @@ fn unbound_speed(x: f64,y: f64) -> f64 {
         if z2 == z0 || z2.is_nan() || z2 > 4.0 {
             break 'lo;
         }
+
+        // let p = E**&((&z2+&z3).abs()*-1.0); //e^-ri
+        let p2 = E**&((&z2).abs()*-1.0); //derivada ?
+        let p3 = E**&((&z3).abs()*-1.0); //derivada ?
+
         z0 = z2;
         z1 = z3;
-
-        let p = E**&((&z2+&z3).abs()*-1.0);
         // println!("u z2 {} z3 {} ",z2,z3);
-        s = s + p;
+        s2 = s2 + p2;
+        s3 = s3 + p3;
 
         i = i+1;
         if i > iterations_per_pixel {
@@ -61,7 +66,7 @@ fn unbound_speed(x: f64,y: f64) -> f64 {
         }
     }
 
-    return s
+    return (s2,s3)
 }
 
 // the recursive function is the one needed for the mandelbrot set, it operates on complex numbers (actually, two tuples)
@@ -155,9 +160,9 @@ pub fn main(config:Config) {
             let realx = map_range((boxi[0],boxi[1]),(0.0,1.0),x);
             let realy = map_range((boxi[2],boxi[3]),(0.0,1.0),y);
 
-            let z = unbound_speed(x,y);
+            let (s2,s3) = unbound_speed(x,y);
 
-            let mut z1 = map_range((-1e2 as f64,-1e1 as f64),(0.1,0.2),z);
+            let mut z1 = map_range((-1e2 as f64,-1e1 as f64),(0.1,0.2),s3/10.0);
 
 
             //
@@ -167,11 +172,11 @@ pub fn main(config:Config) {
             //
             //Limit max depth
             if z1 < 0.0 {
-                z1 = map_range_log((-1e308 as f64,-1e2 as f64),(0.0,0.1),z);
-                if z1 < 0.0 {
-                    println!("a{}",z1);
-                    z1 = -0.0;
-                }
+                z1 = map_range_log((-1e30 as f64,-1e2 as f64),(0.1,0.2),s2);
+                // if z1 < 0.0 {
+                //     println!("a{}",z1);
+                //     z1 = -0.0;
+                // }
 
             }
             // if z1 > 0.6 {
@@ -179,7 +184,10 @@ pub fn main(config:Config) {
             //     z1 = 0.6
             // }
 
-            let p = Point3::new(realx as f32,realy as f32,(z1) as f32);
+            // let p = Point3::new(realx as f32,realy as f32,(z1) as f32);
+
+            let p = Point3::new((realx-0.5) as f32,(realy-0.5) as f32,(z1) as f32);
+
             // print!("{}",p);
             // let p = Point3::new(realx as f32,realy as f32,z1 as f32);
             // let pmesh = p;//Point3::new(0.0,0.0,1.0);
