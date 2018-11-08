@@ -56,6 +56,13 @@ fn unbound_speed(x: f64,y: f64) -> f64 {
         let p = E**&((&z2+&z3).abs()*-1.0);
         // println!("u z2 {} z3 {} ",z2,z3);
         s = s + p;
+        // s = i;
+
+        // To get one number from a complex, do the squere root of both numbers square
+        // Return the number of iterations until it bailed out if it did
+        // If it didn't, draw black ...
+        // Return 1-(1/(e"(abs(x))))
+        //
 
         i = i+1;
         if i > iterations_per_pixel {
