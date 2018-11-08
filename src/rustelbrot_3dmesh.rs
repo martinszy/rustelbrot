@@ -173,16 +173,16 @@ pub fn main(config:Config) {
             //Limit max depth
             if z1 < 0.0 {
                 z1 = map_range_log((-1e30 as f64,-1e2 as f64),(0.1,0.2),s2);
-                // if z1 < 0.0 {
-                //     println!("a{}",z1);
-                //     z1 = -0.0;
-                // }
+                if z1 < 0.0 {
+                    println!("a{}",z1);
+                    z1 = -0.0;
+                }
 
             }
-            // if z1 > 0.6 {
-            //     println!("m{}",z1);
-            //     z1 = 0.6
-            // }
+            if z1 > 0.6 {
+                // println!("m{}",z1);
+                z1 = 0.6
+            }
 
             // let p = Point3::new(realx as f32,realy as f32,(z1) as f32);
 
