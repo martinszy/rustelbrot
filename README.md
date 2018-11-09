@@ -3,7 +3,7 @@
 * Checkout this repo
 
 # Run
-'cargo run [mode]'
+`cargo run [mode] [options]`
 
 mode should be one of 3d, 3dmesh, vid or 2d (default)
 
