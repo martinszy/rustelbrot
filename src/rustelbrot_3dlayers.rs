@@ -165,7 +165,9 @@ pub fn main(config:Config) {
 
 
 
-            corresponding_layer = (z1*config.frames*(1.0/0.2)-(z1*2.5)).round();
+            // corresponding_layer = (z1*config.frames*(1.0/0.2)-(z1*2.5)).round();
+            corresponding_layer = z1*5.0*config.frames.round();
+
             if corresponding_layer >= config.frames {
                 corresponding_layer = config.frames-1.0;
             }
@@ -222,7 +224,7 @@ pub fn main(config:Config) {
     // }
     //
     for layer in &layers {
-        let filename = &format!("rustelbrot_layer{:02}.png",layer.index);
+        let filename = &format!("layers/rustelbrot_layer{:02}.png",layer.index);
         // let filename = "m.png";
 
         let mut file = File::create(filename).expect("Couldn't create file");
