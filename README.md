@@ -3,7 +3,7 @@
 * Checkout this repo
 
 # Run
-'cargo run [mode]'
+`cargo run [mode] [options]`
 
 mode should be one of g3d, vid or g2d (default)
 
@@ -19,5 +19,5 @@ mode should be one of g3d, vid or g2d (default)
 - Improve 3d
 - Document options
 
-#License
+# License
 GPLv3
