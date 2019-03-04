@@ -1,4 +1,7 @@
 <style media="screen">
+  body {
+    background: #ccc;
+  }
   img {
     height:60%;
     position: absolute;
@@ -18,7 +21,7 @@
 window.addEventListener("mousemove",function(e) {
   images = document.getElementsByTagName("img");
   for (i in images) {
-    images[i].style.transform = "rotateX("+(e.clientY / document.body.clientHeight * 100 - 50)+"deg) rotateY("+(e.clientX / document.body.clientWidth * -100 + 50)+"deg) translateZ("+(-10*i)+"px)"
+    images[i].style.transform = "rotateX("+(e.clientY / document.body.clientHeight * 300 - 150)+"deg) rotateY("+(e.clientX / document.body.clientWidth * -300 + 150)+"deg) translateZ("+(-10*i)+"px)"
     images[i].style.zIndex =  1000-i;
   }
 })
