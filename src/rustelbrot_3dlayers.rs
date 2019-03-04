@@ -168,8 +168,16 @@ pub fn main(config:Config) {
 
             // corresponding_layer = (z1*config.frames*(1.0/0.2)-(z1*2.5)).round();
             // let corresponding_layer = map_range_log((0.0,800.0),(0.0,config.frames-1.0),z).round();
-            corresponding_layer = (z1*(config.frames-1.0)*15.0)-4.0;
+            // corresponding_layer = (z1*(config.frames-1.0)*15.0)-4.0;
             // corresponding_layer = (z1*(config.frames-1.0));
+
+            if z1<0.7 {
+                corresponding_layer = (z1*(config.frames-1.0)*15.0)-4.0;
+            }
+            else {
+                corresponding_layer = (z1*(config.frames-1.0)*1.0);
+            }
+
 
             // Sinusolidal
             // corresponding_layer = (f64::sin(z1*f64::pi())*config.frames).round();
