@@ -20,11 +20,11 @@ use self::cairo::{Context, Format, ImageSurface};
 use self::palette::{Rgb, Hsv, RgbHue,Gradient};
 
 // this function tries to determine at which speed does the recursive function blow up
-fn unbound_speed(x: f64,y: f64, current_frame: f64) -> f64 {
+fn unbound_speed(x: f64,y: f64) -> f64 {
     let mut z0 = 0.0;
     let mut z1 = 0.0;
     let mut s = 0.0;
-    let iterations_per_pixel = 80;
+    let iterations_per_pixel = 800;
     let mut i = 0;
 
     'lo: loop {
@@ -35,19 +35,25 @@ fn unbound_speed(x: f64,y: f64, current_frame: f64) -> f64 {
         z0 = z2;
         z1 = z3;
 
-        let p = E**&((&z2+&z3-current_frame).abs()*-1.0);
+        let p = E**&((&z2+&z3).abs()*-1.0);
         // println!("u z2 {} z3 {} ",z2,z3);
         s = s + p;
+        // s = i;
+
+        // To get one number from a complex, do the squere root of both numbers square
+        // Return the number of iterations until it bailed out if it did
+        // If it didn't, draw black ...
+        // Return 1-(1/(e"(abs(x))))
+        //
 
         i = i+1;
         if i > iterations_per_pixel {
-            break 'lo;
+            return i as f64
         }
     }
 
-    return s
+    return i as f64
 }
-
 // the recursive function is the one needed for the mandelbrot set, it operates on complex numbers (actually, two tuples)
 fn recursive(zr:f64,zi:f64,cr:f64,ci:f64) -> (f64,f64) {
     // formula: zn+1 = z2n + c
@@ -74,12 +80,13 @@ fn recursive(zr:f64,zi:f64,cr:f64,ci:f64) -> (f64,f64) {
 fn draw(cr:&Context,boxi:&[f64],config:&Config,gradient:&Gradient<Hsv>, x: f64,y: f64,z: f64) {
     // println!("draw x{} y{} z{}",x,y,z);
     //
-    let mut z1 = map_range((-1e3 as f64,1e3 as f64),(0.0,2.0),z);
+    // let mut z1 = map_range((-1e3 as f64,1e3 as f64),(0.0,2.0),z);
+    let z1 = map_range_log((0.0,800.0),(1.0,-1.0),z);
 
-    if z1.is_nan() {
-        z1 = 0.01
-
-    }
+    // if z1.is_nan() {
+    //     z1 = 0.01
+    //
+    // }
 
 
     let hsv = gradient.get(z1 as f32);
@@ -184,7 +191,7 @@ pub fn main(config:Config) {
             let mut y:f64 = boxi[2];
             while y <= boxi[3] {
                 // println!("{}",y);
-                let z = unbound_speed(x,y,current_frame);
+                let z = unbound_speed(x,y);
 
                 draw(&cr,&boxi,&config,&gradient,x,y,z);
                 y+=precissiony;
