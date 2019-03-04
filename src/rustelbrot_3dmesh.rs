@@ -16,6 +16,7 @@ use std::f64;
 use std::f64::consts::E;
 use std::time::Instant;
 // use std::path::Path;
+use std::usize;
 
 use std::rc::Rc;
 use std::cell::RefCell;
@@ -25,7 +26,7 @@ use kiss3d::builtin::NormalsMaterial;
 
 use self::palette::{Rgb, Hsv, RgbHue,Gradient};
 
-use self::na::{Vector3, Point3, UnitQuaternion};
+use self::na::{Vector3, Point3};
 use self::kiss3d::window::Window;
 use self::kiss3d::light::Light;
 // use kiss3d::resource::Texture;
@@ -36,17 +37,27 @@ use self::ncollide::ncollide_procedural::quad_with_vertices;
 // use ncollide::math::Point as P;
 
 // this function tries to determine at which speed does the recursive function blow up
-fn unbound_speed(x: f64,y: f64) -> (f64,f64) {
+fn unbound_speed(x: f64,y: f64) -> (usize) {
     let mut z0 = 0.0;
     let mut z1 = 0.0;
     let mut s2 = 0.0;
     let mut s3 = 0.0;
-    let iterations_per_pixel = 80;
+    let iterations_per_pixel = 800;
     let mut i = 0;
+
+
+    // To get one number from a complex, do the squere root of both numbers square
+    // Return the number of iterations until it bailed out if it did
+    // If it didn't, draw black ...
+    // Return 1-(1/(e"(abs(x))))
+    // https://crates.io/crates/immense
+    // https://github.com/huxingyi/meshlite/blob/master/examples/obj_export/main.rs
+
 
     'lo: loop {
         let (z2,z3) = recursive(z0,z1,x,y);
-        if z2 == z0 || z2.is_nan() || z2 > 4.0 {
+        // print!("{},{}\n",z2,z3);
+        if z2 == z0 || z2.is_nan() || z2 > 2.0 {
             break 'lo;
         }
 
@@ -62,11 +73,12 @@ fn unbound_speed(x: f64,y: f64) -> (f64,f64) {
 
         i = i+1;
         if i > iterations_per_pixel {
-            break 'lo;
+            return i
         }
     }
 
-    return (s2,s3)
+    // print!("{}\n",iterations_per_pixel);
+    return i
 }
 
 // the recursive function is the one needed for the mandelbrot set, it operates on complex numbers (actually, two tuples)
@@ -160,9 +172,9 @@ pub fn main(config:Config) {
             let realx = map_range((boxi[0],boxi[1]),(0.0,1.0),x);
             let realy = map_range((boxi[2],boxi[3]),(0.0,1.0),y);
 
-            let (s2,s3) = unbound_speed(x,y);
+            let s3 = unbound_speed(x,y) as f64;
 
-            let mut z1 = map_range((-1e2 as f64,-1e1 as f64),(0.1,0.2),s3/10.0);
+            let z1 = map_range_log((0.0,800.0),(0.0,0.5),s3+350.0);
 
 
             //
@@ -171,18 +183,18 @@ pub fn main(config:Config) {
             // }
             //
             //Limit max depth
-            if z1 < 0.0 {
-                z1 = map_range_log((-1e30 as f64,-1e2 as f64),(0.1,0.2),s2);
-                if z1 < 0.0 {
-                    println!("a{}",z1);
-                    z1 = -0.0;
-                }
-
-            }
-            if z1 > 0.6 {
-                // println!("m{}",z1);
-                z1 = 0.6
-            }
+            // if z1 < 0.0 {
+            //     z1 = map_range_log((-1e30 as f64,-1e2 as f64),(0.1,0.2),s3);
+            //     if z1 < 0.0 {
+            //         println!("a{}",z1);
+            //         z1 = -0.0;
+            //     }
+            //
+            // }
+            // if z1 > 0.6 {
+            //     // println!("m{}",z1);
+            //     z1 = 0.6
+            // }
 
             // let p = Point3::new(realx as f32,realy as f32,(z1) as f32);
 
@@ -227,7 +239,7 @@ pub fn main(config:Config) {
         // https://github.com/sebcrozet/kiss3d/blob/master/examples/custom_material.rs
         let material   = Rc::new(RefCell::new(Box::new(NormalsMaterial::new()) as Box<Material + 'static>));
 
-        let rot = UnitQuaternion::from_axis_angle(&Vector3::y_axis(), 0.014);
+        // let rot = UnitQuaternion::from_axis_angle(&Vector3::y_axis(), 0.014);
 
         // m.set_texture_from_file(&Path::new("/var/www/matherial/rustelbrot/generated/rustelbrot_f050.png"),&"textura");
       //  let mut current_frame = config.frames;
