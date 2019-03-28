@@ -172,7 +172,7 @@ pub fn main(config:Config) {
             // corresponding_layer = (z1*(config.frames-1.0));
 
             if z1<0.5 {
-                corresponding_layer = (z1*(config.frames-1.0)*18.0)-4.0;
+                corresponding_layer = (z1*(config.frames-1.0)*18.0)-5.0;
             }
             else {
                 corresponding_layer = z1*(config.frames-1.0)*1.0;
