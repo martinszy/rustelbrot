@@ -21,14 +21,14 @@ use std::fs::File;
 use std::time::Instant;
 // use std::env;
 // use std::rc::Rc;
-use std::path::Path;
+// use std::path::Path;
 
 use self::cairo::{Context, Format, ImageSurface};
 use self::palette::{Rgb, Hsv, RgbHue,Gradient};
 
-use self::na::{Vector3, Point3};
-use self::kiss3d::window::Window;
-use self::kiss3d::light::Light;
+// use self::na::{Vector3, Point3, Real};
+// use self::kiss3d::window::Window;
+// use self::kiss3d::light::Light;
 
 struct Layer {
     index: f64,
@@ -38,11 +38,11 @@ struct Layer {
 
 
 // this function tries to determine at which speed does the recursive function blow up
-fn unbound_speed(x: f64,y: f64) -> f64 {
+fn unbound_speed(x: f64,y: f64) -> usize {
     let mut z0 = 0.0;
     let mut z1 = 0.0;
     let mut s = 0.0;
-    let iterations_per_pixel = 80;
+    let iterations_per_pixel = 800;
     let mut i = 0;
 
     'lo: loop {
@@ -56,14 +56,21 @@ fn unbound_speed(x: f64,y: f64) -> f64 {
         let p = E**&((&z2+&z3).abs()*-1.0);
         // println!("u z2 {} z3 {} ",z2,z3);
         s = s + p;
+        // s = i;
+
+        // To get one number from a complex, do the squere root of both numbers square
+        // Return the number of iterations until it bailed out if it did
+        // If it didn't, draw black ...
+        // Return 1-(1/(e"(abs(x))))
+        //
 
         i = i+1;
         if i > iterations_per_pixel {
-            break 'lo;
+            return i
         }
     }
 
-    return s
+    return i
 }
 
 // the recursive function is the one needed for the mandelbrot set, it operates on complex numbers (actually, two tuples)
@@ -142,25 +149,49 @@ pub fn main(config:Config) {
         let mut y:f64 = boxi[2];
         while y <= boxi[3] {
 
-            let z = unbound_speed(x,y);
+            let z = unbound_speed(x,y) as f64;
 
-            let mut z1 = map_range((-1e2 as f64,-1e1 as f64),(0.1,0.2),z);
+            //let mut z1 = map_range((-1e2 as f64,-1e1 as f64),(0.1,0.2),z);
+            let z1 = map_range_log((0.0,800.0),(0.0,1.0),z);
+            //
+            // //Limit max depth
+            // if z1 < 0.0 {
+            //     z1 = map_range_log((-1e308 as f64,-1e2 as f64),(0.0,0.2),z);
+            //     if z1 < 0.0 {
+            //         println!("a{}",z1);
+            //         z1 = -0.0;
+            //     }
+            //
+            // }
+            //
+            //
 
-            //Limit max depth
-            if z1 < 0.0 {
-                z1 = map_range_log((-1e308 as f64,-1e2 as f64),(0.0,0.2),z);
-                if z1 < 0.0 {
-                    println!("a{}",z1);
-                    z1 = -0.0;
-                }
+            // corresponding_layer = (z1*config.frames*(1.0/0.2)-(z1*2.5)).round();
+            // let corresponding_layer = map_range_log((0.0,800.0),(0.0,config.frames-1.0),z).round();
+            // corresponding_layer = (z1*(config.frames-1.0)*15.0)-4.0;
+            // corresponding_layer = (z1*(config.frames-1.0));
 
+            if z1<0.5 {
+                corresponding_layer = (z1*(config.frames-1.0)*18.0)-5.0;
+            }
+            else {
+                corresponding_layer = z1*(config.frames-1.0)*1.0;
             }
 
 
+            // Sinusolidal
+            // corresponding_layer = (f64::sin(z1*f64::pi())*config.frames).round();
 
-            corresponding_layer = (z1*config.frames*(1.0/0.2)-(z1*2.5)).round();
+            // Log
+            // if z1<0.7 {
+            //     corresponding_layer = map_range_log((0.0,0.7),(0.0,config.frames),z1);
+            // }
+            // else {
+            //     corresponding_layer = map_range_log((0.7,1.0),(0.0,config.frames-1.0),z1);
+            // }
+
             if corresponding_layer >= config.frames {
-                corresponding_layer = config.frames-1.0;
+                corresponding_layer = (config.frames-1.0).round();
             }
             // println!("z{}l{}",z1,corresponding_layer);
 
@@ -176,15 +207,17 @@ pub fn main(config:Config) {
                 ,Hsv::new(RgbHue::from(-2.0+hue_shift), 0.8, 0.8-light_shift)
                 ,Hsv::new(RgbHue::from( -0.0+hue_shift), 1.0, 0.7-light_shift)
                 ,Hsv::new(RgbHue::from( 1.0+hue_shift), 0.5, 0.7-light_shift)
-                ,Hsv::new(RgbHue::from( 5.0+hue_shift), 0.2, 0.9-light_shift)
-                ,Hsv::new(RgbHue::from( 15.0+hue_shift), 0.1, 1.0-light_shift)
+                ,Hsv::new(RgbHue::from( 5.0+hue_shift), 0.2, 0.8-light_shift)
+                ,Hsv::new(RgbHue::from( 15.0+hue_shift), 0.1, 0.6-light_shift)
                 ]
             );
 
-            let hsv = gradient.get((z1*(1.0/0.4)) as f32);
+            let hsv = gradient.get(z1 as f32);
             let rgb: Rgb = Rgb::from(hsv);
 
-
+            if corresponding_layer >= config.frames {
+                corresponding_layer = config.frames-1.0;
+            }
             layers[corresponding_layer as usize].cr.set_source_rgb(rgb.red as f64,rgb.green as f64,rgb.blue as f64);
 
             layers[corresponding_layer as usize].cr.rectangle(
@@ -215,7 +248,7 @@ pub fn main(config:Config) {
     // }
     //
     for layer in &layers {
-        let filename = &format!("rustelbrot_layer{:02}.png",layer.index);
+        let filename = &format!("layers/rustelbrot_layer{:02}.png",layer.index);
         // let filename = "m.png";
 
         let mut file = File::create(filename).expect("Couldn't create file");

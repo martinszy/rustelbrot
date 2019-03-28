@@ -1,0 +1,53 @@
+<style media="screen">
+  body {
+    background: #ccc;
+  }
+  img {
+    height:60%;
+    position: absolute;
+    top: 20%;
+    bottom: 20%;
+    left: 40%;
+  }
+</style>
+<script type="text/javascript">
+  window.onload = function() {
+    images = document.getElementsByTagName("img");
+    for (i in images) {
+      images[i].style.transform = "rotateX(0deg) rotateY(20deg) translateZ("+(-20*i)+"px)"
+      images[i].style.zIndex =  1000-i;
+    }
+  }
+window.addEventListener("mousemove",function(e) {
+  images = document.getElementsByTagName("img");
+  for (i in images) {
+    images[i].style.transform = "rotateX("+(e.clientY / document.body.clientHeight * 300 - 150)+"deg) rotateY("+(e.clientX / document.body.clientWidth * -300 + 150)+"deg) translateZ("+(-10*i)+"px)"
+    images[i].style.zIndex =  1000-i;
+  }
+})
+</script>
+<img src="rustelbrot_layer00.png" alt="">
+<img src="rustelbrot_layer01.png" alt="">
+<img src="rustelbrot_layer02.png" alt="">
+<img src="rustelbrot_layer03.png" alt="">
+<img src="rustelbrot_layer04.png" alt="">
+<img src="rustelbrot_layer05.png" alt="">
+<img src="rustelbrot_layer06.png" alt="">
+<img src="rustelbrot_layer07.png" alt="">
+<img src="rustelbrot_layer08.png" alt="">
+<img src="rustelbrot_layer09.png" alt="">
+<img src="rustelbrot_layer10.png" alt="">
+<img src="rustelbrot_layer11.png" alt="">
+<img src="rustelbrot_layer12.png" alt="">
+<img src="rustelbrot_layer13.png" alt="">
+<img src="rustelbrot_layer14.png" alt="">
+<img src="rustelbrot_layer15.png" alt="">
+<img src="rustelbrot_layer16.png" alt="">
+<img src="rustelbrot_layer17.png" alt="">
+<img src="rustelbrot_layer18.png" alt="">
+<img src="rustelbrot_layer19.png" alt="">
+<img src="rustelbrot_layer20.png" alt="">
+<img src="rustelbrot_layer21.png" alt="">
+<img src="rustelbrot_layer22.png" alt="">
+<img src="rustelbrot_layer23.png" alt="">
+<img src="rustelbrot_layer24.png" alt="">
