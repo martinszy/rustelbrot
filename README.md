@@ -19,5 +19,6 @@ mode should be one of g3d, vid or g2d (default)
 - Improve 3d
 - Document options
 
-#License
+# License
 GPLv3
+w
