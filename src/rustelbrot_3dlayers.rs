@@ -9,15 +9,14 @@ extern crate cairo;
 
 extern crate palette;
 extern crate kiss3d;
-extern crate nalgebra as na;
-extern crate ncollide;
+extern crate ncollide3d;
 
-use Config;
+use crate::Config;
 
 use std::f64;
 use std::usize;
 use std::f64::consts::E;
-use std::fs::File;
+use std::fs;
 use std::time::Instant;
 // use std::env;
 // use std::rc::Rc;
@@ -247,11 +246,11 @@ pub fn main(config:Config) {
     //     xf+=2.0;
     // }
     //
+    fs::create_dir("layers");
     for layer in &layers {
         let filename = &format!("layers/rustelbrot_layer{:02}.png",layer.index);
         // let filename = "m.png";
-
-        let mut file = File::create(filename).expect("Couldn't create file");
+        let mut file = fs::File::create(filename).expect("Couldn't create file");
         match layer.surface.write_to_png(&mut file) {
             Ok(_) => println!("{} created",filename),
             Err(_) => println!("Error create {}",filename),

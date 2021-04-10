@@ -8,9 +8,9 @@
 extern crate palette;
 extern crate kiss3d;
 extern crate nalgebra as na;
-extern crate ncollide;
+extern crate ncollide3d;
 
-use Config;
+use crate::Config;
 
 use std::f64;
 use std::f64::consts::E;
@@ -32,7 +32,7 @@ use self::kiss3d::light::Light;
 // use kiss3d::resource::Texture;
 
 // use ncollide::ncollide_procedural::TriMesh;
-use self::ncollide::ncollide_procedural::quad_with_vertices;
+use self::ncollide3d::procedural::quad_with_vertices;
 // use self::ncollide::ncollide_procedural::quad;
 // use ncollide::math::Point as P;
 
