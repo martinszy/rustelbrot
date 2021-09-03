@@ -1,6 +1,6 @@
 name: rustelbrot
 version: "1.0"
-about: Generador de fractales mandelbrot
+about: Mandelbrot Fractal Generator
 author: Faras <faras@faras.me>
 
 # AppSettings can be defined as a list and are **not** ascii case sensitive
@@ -13,20 +13,20 @@ author: Faras <faras@faras.me>
 
 args:
     - frames:
-        help: Define la cantidad de cuadros a generar
+        help: The number of frames to generate.
         short: f
         long: frames
         takes_value: true
         global: true
     - dimentions:
-        help: Tamaño de las imágenes a generar WIDTHxHEIGHT en pixeles
+        help: Size of the images to be generated, WIDTHxHEIGHT in pixels
         short: d
         long: dimentions
         takes_value: true
         global: true
         multiple: false
     - pixelsize:
-        help: Tamaño del pixel, aumentar este valor disminuye el detalle y aumenta la performance
+        help: Pixel size, Increasing this value decreases detail and increases performance
         long: pixelsize
         short: p
         takes_value: true
@@ -34,7 +34,7 @@ args:
     - boxstart:
         long: boxstart
         short: s
-        help: Define las coordenadas de la caja del cuadro inicial [x1,y1,x2,y2]
+        help: The coordinates of the starting square box [x1,y1,x2,y2]
         # possible_values can also be defined in this list format
         global: true
         takes_value: true
@@ -44,12 +44,12 @@ args:
         short: e
         global: true
         takes_value: true
-        help: Define las coordenadas de la caja del cuadro final [x1,y1,x2,y2]
+        help: The coordinates of the final frame box [x1,y1,x2,y2]
         multiple: false
     - output-template:
         long: output-template
         short: o
-        help: Formato del nombre de salida, incluyendo carpeta y número de cuadro
+        help: Output name format, including folder and frame number
         global: true
 
 # All subcommands must be listed in the 'subcommand:' object, where the key to
@@ -61,22 +61,22 @@ subcommands:
     # The name of this subcommand will be 'subcmd' which can be accessed in your
     # Rust code later
     - g3d:
-        about: genera en 3d (actualmente no anda bien)
+        about: Generates 3d frames (currently not working well)
         # Subcommand args are exactly like App args
         args:
             - mesh:
                 short: m
-                help: Crea malla tridimensional de fractales
+                help: Create a three dimensional mesh of fractals
             - balls:
                 short: b
-                help: Crea muchas bolas en el espacio tridimensional
+                help: Create many balls in three dimensional space.
             - layers:
                 short: l
-                help: Crea capas de imágenes
+                help: Create image layers
             - sphere:
                 short: h
-                help: Crea una malla tridimensional con forma de esfera
+                help: Create a three dimensional mesh in the shape of a sphere.
     - g2d:
-            about: genera en 2d frames para video
+            about: Generate 2d frames for video
     - vid:
-            about: genera en 2d
+            about: Generate 2d

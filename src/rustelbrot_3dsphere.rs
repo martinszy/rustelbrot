@@ -8,9 +8,9 @@
 // extern crate palette;
 extern crate kiss3d;
 extern crate nalgebra as na;
-extern crate ncollide;
+extern crate ncollide3d;
 
-use Config;
+use crate::Config;
 
 use std::f64;
 use std::f64::consts::E;
@@ -31,7 +31,7 @@ use self::kiss3d::light::Light;
 // use kiss3d::resource::Texture;
 
 // use ncollide::ncollide_procedural::TriMesh;
-use self::ncollide::ncollide_procedural::quad_with_vertices;
+use self::ncollide3d::procedural::quad_with_vertices;
 // use self::ncollide::ncollide_procedural::quad;
 // use ncollide::math::Point as P;
 
@@ -196,7 +196,7 @@ pub fn main(config:Config) {
     // m = window.add_trimesh(quad.clone(),Vector3::new(1.0,1.0,1.0));
 
     // https://github.com/sebcrozet/kiss3d/blob/master/examples/custom_material.rs
-    let material   = Rc::new(RefCell::new(Box::new(NormalsMaterial::new()) as Box<Material + 'static>));
+    let material   = Rc::new(RefCell::new(Box::new(NormalsMaterial::new()) as Box<dyn Material + 'static>));
 
     // let rot = UnitQuaternion::from_axis_angle(&Vector3::y_axis(), 0.014);
 

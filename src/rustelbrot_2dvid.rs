@@ -8,7 +8,7 @@
 extern crate cairo;
 extern crate palette;
 
-use Config;
+use crate::Config;
 
 use std::i32;
 use std::f64;
