@@ -196,7 +196,7 @@ pub fn main(config:Config) {
     // m = window.add_trimesh(quad.clone(),Vector3::new(1.0,1.0,1.0));
 
     // https://github.com/sebcrozet/kiss3d/blob/master/examples/custom_material.rs
-    let material   = Rc::new(RefCell::new(Box::new(NormalsMaterial::new()) as Box<Material + 'static>));
+    let material   = Rc::new(RefCell::new(Box::new(NormalsMaterial::new()) as Box<dyn Material + 'static>));
 
     // let rot = UnitQuaternion::from_axis_angle(&Vector3::y_axis(), 0.014);
 

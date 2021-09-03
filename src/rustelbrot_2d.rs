@@ -214,7 +214,10 @@ pub fn main(config:Config) {
 
         let filename = &format!("generated/rustelbrot_f{:03}_box{}x{}x{}x{}.png",current_frame,boxi[0],boxi[1],boxi[2],boxi[3]);
         // let filename = "m.png";
-        fs::create_dir("generated");
+        match fs::create_dir("generated") {
+            Ok(_) => println!("{} created",filename),
+            Err(_) => println!("Error create {}",filename),
+        }
         let mut file = fs::File::create(filename).expect("Couldn't create file");
         match surface.write_to_png(&mut file) {
             Ok(_) => println!("{} created",filename),

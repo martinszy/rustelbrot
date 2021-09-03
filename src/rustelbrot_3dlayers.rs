@@ -246,7 +246,10 @@ pub fn main(config:Config) {
     //     xf+=2.0;
     // }
     //
-    fs::create_dir("layers");
+    match fs::create_dir("layers") {
+        Ok(_) => println!("{} created","layers"),
+        Err(_) => println!("Error create {}","layers"),
+    }
     for layer in &layers {
         let filename = &format!("layers/rustelbrot_layer{:02}.png",layer.index);
         // let filename = "m.png";
