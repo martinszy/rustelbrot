@@ -145,16 +145,20 @@ pub fn main(config:Config) {
         let surface = ImageSurface::create(Format::ARgb32, config.dimentions[0] as i32, config.dimentions[1] as i32).expect("Can't create surface");
          let cr = Context::new(&surface);
 
+        if config.frames > 1.0 {
 
-        boxi = [
-         map_range_log((0.0,config.frames-1.0),(config.boxstart[0],config.boxend[0]),current_frame),
-         map_range_log((0.0,config.frames-1.0),(config.boxstart[1],config.boxend[1]),current_frame),
-         map_range_log((0.0,config.frames-1.0),(config.boxstart[2],config.boxend[2]),current_frame),
-         map_range_log((0.0,config.frames-1.0),(config.boxstart[3],config.boxend[3]),current_frame)
-        ];
+            boxi = [
+             map_range_log((0.0,config.frames-1.0),(config.boxstart[0],config.boxend[0]),current_frame),
+             map_range_log((0.0,config.frames-1.0),(config.boxstart[1],config.boxend[1]),current_frame),
+             map_range_log((0.0,config.frames-1.0),(config.boxstart[2],config.boxend[2]),current_frame),
+             map_range_log((0.0,config.frames-1.0),(config.boxstart[3],config.boxend[3]),current_frame)
+            ];
+        }
+        else {
+            //Que no haya animacion
+            boxi = config.boxstart;
+        }
 
-        //Hardcodeo que no haya animacion
-        // boxi = config.boxstart;
 
 
         let precissionx:f64 = (&boxi[1]-&boxi[0])/&(config.dimentions[0]) * &config.pixelsize;

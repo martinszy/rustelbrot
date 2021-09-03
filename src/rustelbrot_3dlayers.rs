@@ -190,44 +190,64 @@ pub fn main(config:Config) {
             //     corresponding_layer = map_range_log((0.7,1.0),(0.0,config.frames-1.0),z1);
             // }
 
-            if corresponding_layer >= config.frames {
-                corresponding_layer = (config.frames-1.0).round();
+            // if corresponding_layer >= config.frames {
+            //     corresponding_layer = (config.frames-1.0).round();
+            // }
+            // println!("z: {} - corresponding layer: {}",z1,corresponding_layer as usize);
+
+            // let hue_shift = 25.0*corresponding_layer as f32;
+            // let light_shift = -0.03*corresponding_layer as f32;
+
+            // let gradient:Gradient<Hsv> = Gradient::new(vec![
+            //      Hsv::new(RgbHue::from(-10.0+hue_shift), 1.0, 1.0-light_shift)
+            //     ,Hsv::new(RgbHue::from(-80.0+hue_shift), 0.4, 0.4-light_shift)
+            //     ,Hsv::new(RgbHue::from(-7.0+hue_shift), 0.5, 0.5-light_shift)
+            //     ,Hsv::new(RgbHue::from(-6.0+hue_shift), 0.6, 0.6-light_shift)
+            //     ,Hsv::new(RgbHue::from(-5.0+hue_shift), 0.7, 0.7-light_shift)
+            //     ,Hsv::new(RgbHue::from(-2.0+hue_shift), 0.8, 0.8-light_shift)
+            //     ,Hsv::new(RgbHue::from( -0.0+hue_shift), 1.0, 0.7-light_shift)
+            //     ,Hsv::new(RgbHue::from( 1.0+hue_shift), 0.5, 0.7-light_shift)
+            //     ,Hsv::new(RgbHue::from( 5.0+hue_shift), 0.2, 0.8-light_shift)
+            //     ,Hsv::new(RgbHue::from( 15.0+hue_shift), 0.1, 0.6-light_shift)
+            //     ]
+            // );
+
+            // let hsv = gradient.get(z1 as f32);
+            let rgb: Rgb = Rgb::new(40.0,40.0,40.0);
+
+            if corresponding_layer as usize >= config.frames as usize {
+                corresponding_layer = 0.0;
             }
-            // println!("z{}l{}",z1,corresponding_layer);
 
-            let hue_shift = 25.0*corresponding_layer as f32;
-            let light_shift = -0.03*corresponding_layer as f32;
+            let fill:bool = true;
+            if fill != true {
+                layers[corresponding_layer as usize].cr.set_source_rgb(rgb.red as f64,rgb.green as f64,rgb.blue as f64);
 
-            let gradient:Gradient<Hsv> = Gradient::new(vec![
-                 Hsv::new(RgbHue::from(-10.0+hue_shift), 1.0, 1.0-light_shift)
-                ,Hsv::new(RgbHue::from(-80.0+hue_shift), 0.4, 0.4-light_shift)
-                ,Hsv::new(RgbHue::from(-7.0+hue_shift), 0.5, 0.5-light_shift)
-                ,Hsv::new(RgbHue::from(-6.0+hue_shift), 0.6, 0.6-light_shift)
-                ,Hsv::new(RgbHue::from(-5.0+hue_shift), 0.7, 0.7-light_shift)
-                ,Hsv::new(RgbHue::from(-2.0+hue_shift), 0.8, 0.8-light_shift)
-                ,Hsv::new(RgbHue::from( -0.0+hue_shift), 1.0, 0.7-light_shift)
-                ,Hsv::new(RgbHue::from( 1.0+hue_shift), 0.5, 0.7-light_shift)
-                ,Hsv::new(RgbHue::from( 5.0+hue_shift), 0.2, 0.8-light_shift)
-                ,Hsv::new(RgbHue::from( 15.0+hue_shift), 0.1, 0.6-light_shift)
-                ]
-            );
-
-            let hsv = gradient.get(z1 as f32);
-            let rgb: Rgb = Rgb::from(hsv);
-
-            if corresponding_layer >= config.frames {
-                corresponding_layer = config.frames-1.0;
+                layers[corresponding_layer as usize].cr.rectangle(
+                    map_range((boxi[0],boxi[1]),(0.0,config.dimentions[0]),x),
+                    map_range((boxi[2],boxi[3]),(0.0,config.dimentions[1]),y),
+                    config.pixelsize,
+                    config.pixelsize
+                );
+                layers[corresponding_layer as usize].cr.fill();
             }
-            layers[corresponding_layer as usize].cr.set_source_rgb(rgb.red as f64,rgb.green as f64,rgb.blue as f64);
+            else {
+                let mut painted_layer = corresponding_layer;
+                while painted_layer > 0.0 {
+                    layers[painted_layer as usize].cr.set_source_rgb(rgb.red as f64,rgb.green as f64,rgb.blue as f64);
+                    
+                    layers[painted_layer as usize].cr.rectangle(
+                        map_range((boxi[0],boxi[1]),(0.0,config.dimentions[0]),x),
+                        map_range((boxi[2],boxi[3]),(0.0,config.dimentions[1]),y),
+                        config.pixelsize,
+                        config.pixelsize
+                    );
+                    layers[painted_layer as usize].cr.fill();
 
-            layers[corresponding_layer as usize].cr.rectangle(
-                map_range((boxi[0],boxi[1]),(0.0,config.dimentions[0]),x),
-                map_range((boxi[2],boxi[3]),(0.0,config.dimentions[1]),y),
-                config.pixelsize,
-                config.pixelsize
-            );
-            layers[corresponding_layer as usize].cr.fill();
+                    painted_layer = painted_layer - 1.0;
+                }
 
+            }
             y+=precissiony;
         }
         x+=precissionx;
