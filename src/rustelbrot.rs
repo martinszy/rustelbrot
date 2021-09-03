@@ -15,8 +15,7 @@ mod rustelbrot_2dvid;
 
 extern crate palette;
 extern crate kiss3d;
-extern crate nalgebra as na;
-extern crate ncollide;
+extern crate ncollide3d;
 
 #[macro_use]
 extern crate clap;

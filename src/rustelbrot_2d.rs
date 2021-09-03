@@ -8,11 +8,11 @@
 extern crate cairo;
 extern crate palette;
 
-use Config;
+use crate::Config;
 
 use std::f64;
 use std::f64::consts::E;
-use std::fs::File;
+use std::fs;
 use std::time::Instant;
 // use std::env;
 
@@ -214,8 +214,8 @@ pub fn main(config:Config) {
 
         let filename = &format!("generated/rustelbrot_f{:03}_box{}x{}x{}x{}.png",current_frame,boxi[0],boxi[1],boxi[2],boxi[3]);
         // let filename = "m.png";
-
-        let mut file = File::create(filename).expect("Couldn't create file");
+        fs::create_dir("generated");
+        let mut file = fs::File::create(filename).expect("Couldn't create file");
         match surface.write_to_png(&mut file) {
             Ok(_) => println!("{} created",filename),
             Err(_) => println!("Error create {}",filename),

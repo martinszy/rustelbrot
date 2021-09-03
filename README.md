@@ -22,20 +22,29 @@ USAGE:
 FLAGS:
     -h, --help               Prints help information
     -o, --output-template    Formato del nombre de salida, incluyendo carpeta y número de cuadro
+    			     Output name format, including folder and frame number.
     -V, --version            Prints version information
 
 OPTIONS:
     -e, --boxend <boxend>            Define las coordenadas de la caja del cuadro final [x1,y1,x2,y2]
+    		 		     The coordinates of the final frame box [x1,y1,x2,y2]
     -s, --boxstart <boxstart>        Define las coordenadas de la caja del cuadro inicial [x1,y1,x2,y2]
+    		   		     The coordinates of the starting square box [x1,y1,x2,y2]
     -d, --dimentions <dimentions>    Tamaño de las imágenes a generar WIDTHxHEIGHT en pixeles
+    		     		     The size of the images to be generated: WIDTH x HEIGHT in pixels
     -f, --frames <frames>            Define la cantidad de cuadros a generar
+    		 		     The number of frames to generate.
     -p, --pixelsize <pixelsize>      Tamaño del pixel, aumentar este valor disminuye el detalle y aumenta la performance
+    		    		     Pixel size: Increasing this value decreases detail and increases performance.
 
 SUBCOMMANDS:
     g2d     genera en 2d frames para video
+    	    Generates 2d frames for video
     g3d     genera en 3d (actualmente no anda bien)
+    	    Generates 3d frames (currently not working well)
     help    Prints this message or the help of the given subcommand(s)
     vid     genera en 2d
+    	    Generates 2d
 ```
 
 
